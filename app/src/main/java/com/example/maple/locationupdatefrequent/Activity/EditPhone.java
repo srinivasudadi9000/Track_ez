@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -58,7 +59,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
     EditText phon_no_edtxt;
     LinearLayout close_img;
     Boolean selected = false;
-
+    ProgressDialog progress;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,9 +127,16 @@ public class EditPhone extends Activity implements View.OnClickListener {
                     Log.d("device_build", Build.DEVICE);
                     Log.d("manufacturer", android.os.Build.MANUFACTURER);
                     try {
+                        progress = new ProgressDialog(this);
+                        progress.setMessage("Authenticating User..");
+                        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        progress.setIndeterminate(true);
+                        progress.setCancelable(false);
+                        progress.show();
                         getuserdetails(phon_no_edtxt.getText().toString());
                     } catch (IOException e) {
                         e.printStackTrace();
+                        progress.dismiss();
                     }
                 }
                 break;
@@ -140,19 +148,25 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 break;
 
             case R.id.register_app:
-                  Intent messagg = new Intent(EditPhone.this,Messages.class);
-                  startActivity(messagg);
-               /* if (selected) {
+
+                if (selected) {
                     try {
+                        progress = new ProgressDialog(this);
+                        progress.setMessage("Authenticating User..");
+                        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        progress.setIndeterminate(true);
+                        progress.setCancelable(false);
+                        progress.show();
                         Log.d("phonenuo........", phone_no_radio.getText().subSequence(2, 12).toString());
                         getuserdetails(phone_no_radio.getText().subSequence(2, 12).toString());
                     } catch (IOException e) {
+                        progress.dismiss();
                         e.printStackTrace();
                     }
                     // showDialog(EditPhone.this, "Successfully ", "yes");
                 } else {
                     showDialog(EditPhone.this, "Please  Select Phone Number", "no");
-                }*/
+                }
                 break;
             case R.id.cancel_ll:
                 Animation animation2 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fadeout);
@@ -198,11 +212,17 @@ public class EditPhone extends Activity implements View.OnClickListener {
 
     }
 
+    public static String getDeviceName(){
+        String deviceName = Build.MANUFACTURER
+                + " " + Build.MODEL + " " + Build.VERSION.RELEASE
+                + " " + Build.VERSION_CODES.class.getFields()[android.os.Build.VERSION.SDK_INT].getName();
+        return deviceName;
+    }
     public void setRegisterdetails(String DeviceNo) throws IOException {
         String MobileDeviceID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         String Device_name = android.os.Build.MODEL;
         Log.d("deviceid", MobileDeviceID);
-        Log.d("device name", android.os.Build.MODEL);
+        Log.d("device name", getDeviceName());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         String millisInString = dateFormat.format(new Date());
@@ -222,7 +242,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
         final Request request = new Request.Builder()
                 .url(url)
                 .build();
-
+        Log.d("RegisterDevice",request.toString());
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -292,6 +312,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 // Log.d("result", e.getMessage().toString());
                 // e.printStackTrace();
                 Log.d("result", "service no runnning...............");
+                 progress.dismiss();
             }
 
             @Override
@@ -299,7 +320,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
 
                 if (response.isSuccessful()) {
                     Log.d("result_success", response.body().toString());
-
+                    progress.dismiss();
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().string());
                         if (jsonObject.get("Message") instanceof JSONArray) {

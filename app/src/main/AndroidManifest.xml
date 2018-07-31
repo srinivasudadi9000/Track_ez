@@ -79,6 +79,7 @@
             android:screenOrientation="portrait" />
         <activity android:name=".Activity.EditPhone" />
         <activity android:name=".Activity.Messages"></activity>
+        <activity android:name=".Activity.AdminMessages"></activity>
     </application>
 
 </manifest>

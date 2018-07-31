@@ -38,6 +38,7 @@ import com.google.android.gms.location.LocationResult;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -83,8 +84,16 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
         // alarmMgr.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
         //alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,cal.getTimeInMillis(), pendingIntent);
 
-        alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+        // alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
 
+        if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
+
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+                // only for gingerbread and newer versions
+            }
+        }
         Log.d(TAG, "onReceive");
         if (intent != null) {
             Log.d(TAG, "onReceive entered if");
@@ -152,7 +161,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                         if (Validations.hasActiveInternetConnection(context)) {
                             dbHelper.insertProject(latitude, longitude, millisInString, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
                                     s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", context);
-                        }else {
+                        } else {
                             dbHelper.insertProject(latitude, longitude, millisInString, "oops",
                                     s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", context);
                         }
@@ -232,7 +241,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
 //        String arrea =  address.substring(0, 10);
         return address;*/
-       return "wow";
+        return "wow";
     }
 
     public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime) throws IOException {
@@ -242,7 +251,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://125.62.194.181/tracker/trackernew.asmx/UpdateLocation?").newBuilder();
         urlBuilder.addQueryParameter("Token", "VVD@14");
-        urlBuilder.addQueryParameter("DeviceID",  s.getString("DeviceId", ""));
+        urlBuilder.addQueryParameter("DeviceID", s.getString("DeviceId", ""));
         // urlBuilder.addQueryParameter("DeviceID", "5");
         urlBuilder.addQueryParameter("Lat", latitude);
         urlBuilder.addQueryParameter("Long", longitude);
@@ -251,10 +260,10 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
         urlBuilder.addQueryParameter("Course", "android_srinivas");
         urlBuilder.addQueryParameter("Battery", "20");
         urlBuilder.addQueryParameter("Address", "vizag");
-        urlBuilder.addQueryParameter("LocationProvider", s.getString("personname",""));
+        urlBuilder.addQueryParameter("LocationProvider", s.getString("personname", ""));
         urlBuilder.addQueryParameter("UpdatedDateTime", datetime);
         urlBuilder.addQueryParameter("AppStatus", "2");
-        urlBuilder.addQueryParameter("MobileDeviceID",  s.getString("deviceno", ""));
+        urlBuilder.addQueryParameter("MobileDeviceID", s.getString("deviceno", ""));
         //  urlBuilder.addQueryParameter("MobileDeviceID", "9999999999");
 
         String url = urlBuilder.build().toString();
@@ -275,7 +284,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
             public void onResponse(Call call, final Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     Log.d("result", response.toString());
-                   // Log.d("addresss ", getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""));
+                    // Log.d("addresss ", getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""));
                     //throw new IOException("Unexpected code " + response);
                     SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
                     s.getString("DeviceId", "");

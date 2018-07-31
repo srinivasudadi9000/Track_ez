@@ -50,6 +50,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.maple.locationupdatefrequent.Activity.AdminMessages;
 import com.example.maple.locationupdatefrequent.Activity.EditPhone;
 import com.example.maple.locationupdatefrequent.Activity.Messages;
 import com.example.maple.locationupdatefrequent.Activity.SplashScreen;
@@ -149,9 +150,10 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     SupportMapFragment mapFragment;
     private PermissionHelper permissionHelper;
     FloatingActionButton start_fab;
-    TextView statsu_tv, tapstatus_tv;
-    CardView status_cv, logout_cv,mesages_cardview;
-    ImageView back_img,refresh_img;
+    TextView statsu_tv, tapstatus_tv, device_id;
+    CardView status_cv, logout_cv, mesages_cardview, admin_msg_cv;
+    ImageView back_img, refresh_img;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,31 +168,33 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         status_cv = (CardView) findViewById(R.id.status_cv);
         logout_cv = (CardView) findViewById(R.id.logout_cv);
         mesages_cardview = (CardView) findViewById(R.id.mesages_cardview);
+        admin_msg_cv = (CardView) findViewById(R.id.admin_msg_cv);
         statsu_tv = (TextView) findViewById(R.id.statsu_tv);
         tapstatus_tv = (TextView) findViewById(R.id.tapstatus_tv);
+        device_id = (TextView) findViewById(R.id.device_id);
         start_fab = (FloatingActionButton) findViewById(R.id.start_fab);
         start_fab.setOnClickListener(GeoFencingDemo.this);
         status_cv.setOnClickListener(GeoFencingDemo.this);
         logout_cv.setOnClickListener(GeoFencingDemo.this);
         mesages_cardview.setOnClickListener(GeoFencingDemo.this);
-
+        admin_msg_cv.setOnClickListener(GeoFencingDemo.this);
         component = new ComponentName(act, LocationUpdatesBroadcastReceiver.class);
         geocoder = new Geocoder(this, Locale.getDefault());
 
         sharedPreferences = getSharedPreferences("location_date_storage", MODE_PRIVATE);
         START_STOP = getSharedPreferences("START_STOP", MODE_PRIVATE);
         if (START_STOP.getString("status", "").length() > 0) {
-            if (START_STOP.getString("status","").equals("STOP")){
+            if (START_STOP.getString("status", "").equals("STOP")) {
                 statsu_tv.setTextColor(getResources().getColor(R.color.green));
                 statsu_tv.setText(START_STOP.getString("status", "").toString());
-            }else {
+            } else {
                 statsu_tv.setTextColor(getResources().getColor(R.color.white));
                 statsu_tv.setText(START_STOP.getString("status", "").toString());
             }
         }
 
-
-
+        SharedPreferences ss = getSharedPreferences("Userdetails", MODE_PRIVATE);
+        device_id.setText(ss.getString("deviceno", "") + " " + android.os.Build.MANUFACTURER);
         Log.d(TAG, "onCreate");
         // The filter's action is BROADCAST_ACTION
         statusIntentFilter = new IntentFilter(Constants.BROADCAST_ACTION);
@@ -947,12 +951,21 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                     Intent w = new Intent(this, LocationUpdatesBroadcastReceiver.class);
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, w, 0);
                     Calendar cal2 = Calendar.getInstance();
-                    //alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
+
                     // cal.add(Calendar.SECOND, 5);
                     // alarmMgr.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
                     //alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,cal.getTimeInMillis(), pendingIntent);
 
-                    alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+                    if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
+                        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
+                    } else {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                            alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+                            // only for gingerbread and newer versions
+                        } else {
+                            alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
+                        }
+                    }
                     buildGoogleApiClient();
                     statsu_tv.setTextColor(getResources().getColor(R.color.green));
                     statsu_tv.setText("STOP");
@@ -982,9 +995,9 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                 startActivity(attndance_lo);
                 break;
             case R.id.logout_cv:
-                if (statsu_tv.getText().toString().equals("STOP")){
-                    showDialog(GeoFencingDemo.this,"Before Logout Please Stop Service","no");
-                }else {
+                if (statsu_tv.getText().toString().equals("STOP")) {
+                    showDialog(GeoFencingDemo.this, "Before Logout Please Stop Service", "no");
+                } else {
                     clearApplicationData();
                 }
                 break;
@@ -992,8 +1005,13 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                 Intent messages = new Intent(GeoFencingDemo.this, Messages.class);
                 startActivity(messages);
                 break;
+            case R.id.admin_msg_cv:
+                Intent adminmsg = new Intent(GeoFencingDemo.this, AdminMessages.class);
+                startActivity(adminmsg);
+                break;
         }
     }
+
     public void showDialog(Activity activity, String msg, final String status) {
         final Dialog dialog = new Dialog(activity, R.style.PauseDialog);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -1013,12 +1031,12 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (status.equals("yes")){
+                if (status.equals("yes")) {
                     dialog.dismiss();
-                    Intent dashboard = new Intent(GeoFencingDemo.this,GeoFencingDemo.class);
+                    Intent dashboard = new Intent(GeoFencingDemo.this, GeoFencingDemo.class);
                     startActivity(dashboard);
                     finish();
-                }else {
+                } else {
                     dialog.dismiss();
                 }
             }

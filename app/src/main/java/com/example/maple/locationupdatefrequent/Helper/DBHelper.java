@@ -10,7 +10,11 @@ public class DBHelper {
     public DBHelper(Context context) {
         db = context.openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
         db.execSQL("CREATE TABLE IF NOT EXISTS checktime(latitude VARCHAR,longitude VARCHAR,cdt VARCHAR,address VARCHAR,deviceid VARCHAR,deviceno VARCHAR,status VARCHAR);");
-        db.execSQL("CREATE TABLE IF NOT EXISTS messages(msg_id INTEGER PRIMARY KEY AUTOINCREMENT,msg VARCHAR,cdt VARCHAR,status VARCHAR);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS messages(latitude VARCHAR,longitude VARCHAR,msg VARCHAR,cdt VARCHAR,status VARCHAR);");
+    }
+
+    public DBHelper() {
+
     }
 
     public void insertProject(String latitude, String longitude, String cdt,String address, String deviceid ,String deviceno,String status,Context context) {
@@ -31,12 +35,23 @@ public class DBHelper {
 
     }
 
-    public void insertMessage(String message, String cdt,String status,Context context) {
+
+    public void insertMessage(String latitude , String longitude,String message, String cdt,String status,Context context) {
         this.context = context;
         db = context.openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
-        db.execSQL("INSERT INTO messages VALUES('" + message + "','" + cdt+"','"+status+"');");
+        db.execSQL("INSERT INTO messages VALUES('" + latitude + "','" + longitude+ "','" + message+ "','" + cdt+"','"+status+"');");
         db.close();
         Log.d("dbcreated_insert","insertedsucess");
     }
+    public void updateMessage(String status, String cdt, Context context) {
+        db = context.openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
+        String strSQL = "UPDATE messages SET status = '"+status+"' WHERE cdt = '"+ cdt+"'";
+        db.execSQL(strSQL);
+
+        db.close();
+        Log.d("checkupdated","checkupdatedsuccessfully");
+
+    }
+
 
 }

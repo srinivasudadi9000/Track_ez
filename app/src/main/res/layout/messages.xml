@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -54,7 +53,7 @@
             android:layout_weight=".8"
             android:padding="5dp"
             android:rotation="0"
-            android:src="@drawable/clear" />
+            android:src="@drawable/refresh" />
 
     </LinearLayout>
 
@@ -80,7 +79,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="5dp"
                 android:gravity="start"
-                android:hint="hint"
+                android:hint="Type Message Here"
                 android:inputType="textMultiLine"
                 android:lines="5"
                 android:maxLines="10"
@@ -99,6 +98,8 @@
 
     </android.support.v7.widget.RecyclerView>
 
-    <include
-        layout="@layout/windowlikeanim"></include>
+    <!--
+        <include
+            layout="@layout/windowlikeanim"></include>
+    -->
 </RelativeLayout>
