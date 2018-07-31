@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.example.maple.locationupdatefrequent.GeoFencingDemo;
 import com.example.maple.locationupdatefrequent.R;
+import com.example.maple.locationupdatefrequent.Validations;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -60,6 +61,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
     LinearLayout close_img;
     Boolean selected = false;
     ProgressDialog progress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,18 +128,23 @@ public class EditPhone extends Activity implements View.OnClickListener {
                     Log.d("device name", android.os.Build.MODEL);
                     Log.d("device_build", Build.DEVICE);
                     Log.d("manufacturer", android.os.Build.MANUFACTURER);
-                    try {
-                        progress = new ProgressDialog(this);
-                        progress.setMessage("Authenticating User..");
-                        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                        progress.setIndeterminate(true);
-                        progress.setCancelable(false);
-                        progress.show();
-                        getuserdetails(phon_no_edtxt.getText().toString());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        progress.dismiss();
+                    if (Validations.hasActiveInternetConnection(EditPhone.this)) {
+                        try {
+                            progress = new ProgressDialog(this);
+                            progress.setMessage("Authenticating User..");
+                            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                            progress.setIndeterminate(true);
+                            progress.setCancelable(false);
+                            progress.show();
+                            getuserdetails(phon_no_edtxt.getText().toString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            progress.dismiss();
+                        }
+                    }else {
+                        showDialog(EditPhone.this, "Please  Check Internet Connection !!", "no");
                     }
+
                 }
                 break;
             case R.id.edit_tv:
@@ -150,18 +157,26 @@ public class EditPhone extends Activity implements View.OnClickListener {
             case R.id.register_app:
 
                 if (selected) {
-                    try {
-                        progress = new ProgressDialog(this);
-                        progress.setMessage("Authenticating User..");
-                        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                        progress.setIndeterminate(true);
-                        progress.setCancelable(false);
-                        progress.show();
-                        Log.d("phonenuo........", phone_no_radio.getText().subSequence(2, 12).toString());
-                        getuserdetails(phone_no_radio.getText().subSequence(2, 12).toString());
-                    } catch (IOException e) {
-                        progress.dismiss();
-                        e.printStackTrace();
+                    if (Validations.hasActiveInternetConnection(EditPhone.this)) {
+                        try {
+                            progress = new ProgressDialog(this);
+                            progress.setMessage("Authenticating User..");
+                            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                            progress.setIndeterminate(true);
+                            progress.setCancelable(false);
+                            progress.show();
+                            Log.d("phonenuo........", phone_no_radio.getText().subSequence(2, 12).toString());
+                            if (phone_no_radio.getText().toString().length() < 10) {
+                                getuserdetails(phone_no_radio.getText().toString());
+                            } else {
+                                getuserdetails(phone_no_radio.getText().subSequence(2, 12).toString());
+                            }
+                        } catch (IOException e) {
+                            progress.dismiss();
+                            e.printStackTrace();
+                        }
+                    }else {
+                        showDialog(EditPhone.this, "Please  Check Internet Connection !!", "no");
                     }
                     // showDialog(EditPhone.this, "Successfully ", "yes");
                 } else {
@@ -200,7 +215,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
             public void onClick(View v) {
                 if (status.equals("yes")) {
                     dialog.dismiss();
-                    Intent dashboard = new Intent(EditPhone.this,GeoFencingDemo.class);
+                    Intent dashboard = new Intent(EditPhone.this, GeoFencingDemo.class);
                     startActivity(dashboard);
                     finish();
                 } else {
@@ -212,12 +227,13 @@ public class EditPhone extends Activity implements View.OnClickListener {
 
     }
 
-    public static String getDeviceName(){
+    public static String getDeviceName() {
         String deviceName = Build.MANUFACTURER
                 + " " + Build.MODEL + " " + Build.VERSION.RELEASE
                 + " " + Build.VERSION_CODES.class.getFields()[android.os.Build.VERSION.SDK_INT].getName();
         return deviceName;
     }
+
     public void setRegisterdetails(String DeviceNo) throws IOException {
         String MobileDeviceID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         String Device_name = android.os.Build.MODEL;
@@ -242,7 +258,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
         final Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Log.d("RegisterDevice",request.toString());
+        Log.d("RegisterDevice", request.toString());
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -305,14 +321,14 @@ public class EditPhone extends Activity implements View.OnClickListener {
         final Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Log.d("myrequest",request.toString());
+        Log.d("myrequest", request.toString());
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 // Log.d("result", e.getMessage().toString());
                 // e.printStackTrace();
                 Log.d("result", "service no runnning...............");
-                 progress.dismiss();
+                progress.dismiss();
             }
 
             @Override
