@@ -78,8 +78,11 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:screenOrientation="portrait" />
         <activity android:name=".Activity.EditPhone" />
-        <activity android:name=".Activity.Messages"></activity>
+        <activity
+            android:name=".Activity.Messages"
+            android:configChanges="keyboard|keyboardHidden"></activity>
         <activity android:name=".Activity.AdminMessages"></activity>
+        <activity android:name=".Activity.GetUserReports"></activity>
     </application>
 
 </manifest>

@@ -30,8 +30,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
                 android:background="@drawable/rectcorner"
-                android:text="Coordinates"
-                android:textAllCaps="true"
+                android:text="Location"
+                android:textAllCaps="false"
                 android:textSize="18dp"
                 android:textStyle="bold" />
 
@@ -42,7 +42,7 @@
                 android:layout_weight=".5"
                 android:background="@drawable/rectcorner"
                 android:text="Status"
-                android:textAllCaps="true"
+                android:textAllCaps="false"
                 android:textSize="18dp"
                 android:textStyle="bold" />
         </LinearLayout>

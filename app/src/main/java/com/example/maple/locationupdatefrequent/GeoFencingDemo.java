@@ -52,6 +52,7 @@ import android.widget.Toast;
 
 import com.example.maple.locationupdatefrequent.Activity.AdminMessages;
 import com.example.maple.locationupdatefrequent.Activity.EditPhone;
+import com.example.maple.locationupdatefrequent.Activity.GetUserReports;
 import com.example.maple.locationupdatefrequent.Activity.Messages;
 import com.example.maple.locationupdatefrequent.Activity.SplashScreen;
 import com.example.maple.locationupdatefrequent.Helper.Constants;
@@ -151,7 +152,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     private PermissionHelper permissionHelper;
     FloatingActionButton start_fab;
     TextView statsu_tv, tapstatus_tv, device_id;
-    CardView status_cv, logout_cv, mesages_cardview, admin_msg_cv;
+    CardView status_cv, logout_cv, mesages_cardview, admin_msg_cv,recentrep_cv;
     ImageView back_img, refresh_img;
 
     @Override
@@ -169,6 +170,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         logout_cv = (CardView) findViewById(R.id.logout_cv);
         mesages_cardview = (CardView) findViewById(R.id.mesages_cardview);
         admin_msg_cv = (CardView) findViewById(R.id.admin_msg_cv);
+        recentrep_cv = (CardView) findViewById(R.id.recentrep_cv);
         statsu_tv = (TextView) findViewById(R.id.statsu_tv);
         tapstatus_tv = (TextView) findViewById(R.id.tapstatus_tv);
         device_id = (TextView) findViewById(R.id.device_id);
@@ -176,6 +178,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         start_fab.setOnClickListener(GeoFencingDemo.this);
         status_cv.setOnClickListener(GeoFencingDemo.this);
         logout_cv.setOnClickListener(GeoFencingDemo.this);
+        recentrep_cv.setOnClickListener(GeoFencingDemo.this);
         mesages_cardview.setOnClickListener(GeoFencingDemo.this);
         admin_msg_cv.setOnClickListener(GeoFencingDemo.this);
         component = new ComponentName(act, LocationUpdatesBroadcastReceiver.class);
@@ -191,6 +194,9 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                 statsu_tv.setTextColor(getResources().getColor(R.color.white));
                 statsu_tv.setText(START_STOP.getString("status", "").toString());
             }
+        } else {
+            statsu_tv.setTextColor(getResources().getColor(R.color.white));
+            statsu_tv.setText("START");
         }
 
         SharedPreferences ss = getSharedPreferences("Userdetails", MODE_PRIVATE);
@@ -1008,6 +1014,10 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
             case R.id.admin_msg_cv:
                 Intent adminmsg = new Intent(GeoFencingDemo.this, AdminMessages.class);
                 startActivity(adminmsg);
+                break;
+            case R.id.recentrep_cv:
+                Intent recentreports = new Intent(GeoFencingDemo.this, GetUserReports.class);
+                startActivity(recentreports);
                 break;
         }
     }

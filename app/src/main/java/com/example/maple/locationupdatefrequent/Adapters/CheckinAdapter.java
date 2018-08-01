@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -69,7 +72,15 @@ public class CheckinAdapter extends RecyclerView.Adapter<CheckinAdapter.CheckIn>
 
 
             holder.statsu_img.setImageDrawable(context.getResources().getDrawable(R.drawable.done_green));
+
         }
+        Animation animation = AnimationUtils.loadAnimation(context.getApplicationContext(), R.anim.slidein);
+        if (position %2 ==0){
+            animation.setDuration(1000);
+        }else {
+            animation.setDuration(500);
+        }
+        holder.single_checkin_cv.startAnimation(animation);
     }
 
     @Override
@@ -80,8 +91,10 @@ public class CheckinAdapter extends RecyclerView.Adapter<CheckinAdapter.CheckIn>
     public class CheckIn extends RecyclerView.ViewHolder{
        TextView lat_tv,lng_tv,cdt_tv,status_tv;
        ImageView statsu_img;
+       CardView single_checkin_cv;
         public CheckIn(View itemView) {
             super(itemView);
+            single_checkin_cv = (CardView)itemView.findViewById(R.id.single_checkin_cv);
             statsu_img = (ImageView) itemView.findViewById(R.id.statsu_img);
             cdt_tv = (TextView) itemView.findViewById(R.id.cdt_tv);
             status_tv = (TextView) itemView.findViewById(R.id.status_tv);
