@@ -60,9 +60,9 @@ public class GetUserReports extends Activity implements View.OnClickListener {
             // Toast.makeText(getBaseContext(),latitude+" "+longitude  ,Toast.LENGTH_SHORT).show();
         }
 
-        msg_back_img = (ImageView) findViewById(R.id.msg_back_img);
+        msg_back_img = findViewById(R.id.msg_back_img);
         msg_back_img.setOnClickListener(this);
-        messages_recyler = (RecyclerView) findViewById(R.id.reportsmessages_recyler);
+        messages_recyler = findViewById(R.id.reportsmessages_recyler);
         messages_recyler.setLayoutManager(new LinearLayoutManager(this));
 
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
@@ -89,14 +89,14 @@ public class GetUserReports extends Activity implements View.OnClickListener {
         }
     }
 
-    public void getAdminmessages(String deviceid) throws IOException {
+    public void getAdminmessages(String deviceid) {
 
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://125.62.194.181/tracker/trackernew.asmx/GetUserReport?").newBuilder();
         urlBuilder.addQueryParameter("Token", "VVD@14");
-        urlBuilder.addQueryParameter("DeviceNO", "7702780044");
+        urlBuilder.addQueryParameter("DeviceNO", "9393111282");
         urlBuilder.addQueryParameter("DeviceID", "2");
         urlBuilder.addQueryParameter("MobileDeviceID", "4f92900a52d28ab8");
 
@@ -131,7 +131,7 @@ public class GetUserReports extends Activity implements View.OnClickListener {
                                 Log.d("hello", values.getString("messagedatetime"));
 
                                 reports.add(new Reports(values.getString("messagedescription"), values.getString("Photo"),
-                                        values.getString("messagedatetime")));
+                                        values.getString("messagedatetime"), ""));
                             }
                             GetUserReports.this.runOnUiThread(new Runnable() {
                                 public void run() {

@@ -21,6 +21,7 @@
     <uses-feature android:name="android.hardware.location" />
 
     <application
+        android:name=".UILApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -83,6 +84,7 @@
             android:configChanges="keyboard|keyboardHidden"></activity>
         <activity android:name=".Activity.AdminMessages"></activity>
         <activity android:name=".Activity.GetUserReports"></activity>
+        <activity android:name=".Activity.QuestionsDisplay"></activity>
     </application>
 
 </manifest>

@@ -2,9 +2,18 @@ package com.example.maple.locationupdatefrequent.Models;
 
 public class Reports {
 
-    String messagedescription,messagedatetime,Photo;
-    public Reports(String messagedescription, String Photo, String messagedatetime){
+    String messagedescription,messagedatetime,Photo,type;
+    public Reports(String messagedescription, String Photo, String messagedatetime,String type){
         this.messagedescription = messagedescription;this.Photo = Photo;this.messagedatetime = messagedatetime;
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getMessagedescription() {
