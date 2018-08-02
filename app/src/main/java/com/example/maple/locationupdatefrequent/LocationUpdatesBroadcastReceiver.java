@@ -136,8 +136,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                     dbHelper.insertProject(latitude, longitude, millisInString, context);*/
                     if (Validations.hasActiveInternetConnection(context)) {
 
-                        try {
-                       /* if (o_value % 3 == 0) {
+                        /* if (o_value % 3 == 0) {
                             SharedPreferences.Editor s = context.getSharedPreferences("dump", MODE_PRIVATE).edit();
                             o_value++;
                             s.putInt("value", o_value);
@@ -151,15 +150,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                             s.commit();
                         }*/
                             sendlatlong_to_server(latitude, longitude, millisInString);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
-                            DBHelper dbHelpers = new DBHelper(context);
-                            dbHelpers.insertProject(latitude, longitude, millisInString, "wow",
-                                    s.getString("DeviceId", ""), s.getString("deviceno", ""), "local",
-                                    context);
-                        }
-                    } else {
+                     } else {
                         SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
                         DBHelper dbHelper = new DBHelper(context);
                         if (Validations.hasActiveInternetConnection(context)) {
