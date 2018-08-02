@@ -22,6 +22,9 @@ import com.example.maple.locationupdatefrequent.Models.Question;
 import com.example.maple.locationupdatefrequent.Models.Reports;
 import com.example.maple.locationupdatefrequent.R;
 import com.google.gson.Gson;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,16 +51,34 @@ public class QuestionsDisplay extends Activity implements View.OnClickListener {
     QuestionsAdapter questionsAdapter;
     ProgressDialog progress;
     ZoomableImageView myimage;
+    DisplayImageOptions options;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.questions);
         questions = new ArrayList<Question>();
 
+
+        options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.mipmap.ic_launcher_round)
+                .showImageForEmptyUri(R.drawable.clear)
+                .showImageOnFail(R.drawable.clear)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .displayer(new RoundedBitmapDisplayer(20))
+                .build();
+
+
         myimage = findViewById(R.id.myimage);
-        BitmapDrawable drawable = (BitmapDrawable)  getBaseContext().getResources().getDrawable(R.drawable.car);
+        ImageLoader.getInstance()
+                .displayImage("http://125.62.194.181/tracker/" + getIntent().getStringExtra("image"), myimage, options);
+
+       /* BitmapDrawable drawable = (BitmapDrawable) myimage.getDrawable();
         Bitmap bitmap = drawable.getBitmap();
-        myimage.setImageBitmap(bitmap);
+        myimage.setImageBitmap(bitmap);*/
 
         msg_back_img = findViewById(R.id.msg_back_img);
         msg_back_img.setOnClickListener(this);
@@ -70,14 +91,13 @@ public class QuestionsDisplay extends Activity implements View.OnClickListener {
         for (String line : lines) {
             System.out.println(line);
             String[] sublines = line.split("\\r?<br/>");
-            questions.add(new Question(sublines[0],sublines[1]));
+            questions.add(new Question(sublines[0], sublines[1]));
 
         }
 
         questionsAdapter = new QuestionsAdapter(questions, R.layout.questions_single, getApplicationContext());
         questions_recyler.setAdapter(questionsAdapter);
         questionsAdapter.notifyDataSetChanged();
-
 
     }
 
@@ -89,7 +109,6 @@ public class QuestionsDisplay extends Activity implements View.OnClickListener {
                 break;
         }
     }
-
 
 
 }

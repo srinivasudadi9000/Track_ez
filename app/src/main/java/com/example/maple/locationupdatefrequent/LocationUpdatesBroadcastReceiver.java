@@ -88,9 +88,13 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
         if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
 
-        } else {
+        } else if ( android.os.Build.MANUFACTURER.equals("vivo")){
+            alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
+            //alarmMgr.set(android.app.AlarmManager.RTC_WAKEUP,30000, pendingIntent);
+
+        }else {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+                alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
                 // only for gingerbread and newer versions
             }
         }
@@ -123,7 +127,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                     String longitude = String.valueOf(locations.get(0).getLongitude());
 
 
-                    SharedPreferences vendorname = context.getSharedPreferences("dump", context.MODE_PRIVATE);
+                    SharedPreferences vendorname = context.getSharedPreferences("dump", MODE_PRIVATE);
                     int o_value = vendorname.getInt("value", 0);
                     String xy = String.valueOf(vendorname.getInt("value", 0));
                     Log.d("valueinshared", xy);
@@ -244,7 +248,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
         return "wow";
     }
 
-    public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime) throws IOException {
+    public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime) {
         SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
@@ -281,7 +285,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
             }
 
             @Override
-            public void onResponse(Call call, final Response response) throws IOException {
+            public void onResponse(Call call, final Response response) {
                 if (!response.isSuccessful()) {
                     Log.d("result", response.toString());
                     // Log.d("addresss ", getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""));

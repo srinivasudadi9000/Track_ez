@@ -162,19 +162,19 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
         act = this;
         ((AppCompatActivity) act).getSupportActionBar().hide();
-        back_img = (ImageView) findViewById(R.id.back_img);
-        refresh_img = (ImageView) findViewById(R.id.refresh_img);
+        back_img = findViewById(R.id.back_img);
+        refresh_img = findViewById(R.id.refresh_img);
         back_img.setVisibility(View.GONE);
         refresh_img.setVisibility(View.GONE);
-        status_cv = (CardView) findViewById(R.id.status_cv);
-        logout_cv = (CardView) findViewById(R.id.logout_cv);
-        mesages_cardview = (CardView) findViewById(R.id.mesages_cardview);
-        admin_msg_cv = (CardView) findViewById(R.id.admin_msg_cv);
-        recentrep_cv = (CardView) findViewById(R.id.recentrep_cv);
-        statsu_tv = (TextView) findViewById(R.id.statsu_tv);
-        tapstatus_tv = (TextView) findViewById(R.id.tapstatus_tv);
-        device_id = (TextView) findViewById(R.id.device_id);
-        start_fab = (FloatingActionButton) findViewById(R.id.start_fab);
+        status_cv = findViewById(R.id.status_cv);
+        logout_cv = findViewById(R.id.logout_cv);
+        mesages_cardview = findViewById(R.id.mesages_cardview);
+        admin_msg_cv = findViewById(R.id.admin_msg_cv);
+        recentrep_cv = findViewById(R.id.recentrep_cv);
+        statsu_tv = findViewById(R.id.statsu_tv);
+        tapstatus_tv = findViewById(R.id.tapstatus_tv);
+        device_id = findViewById(R.id.device_id);
+        start_fab = findViewById(R.id.start_fab);
         start_fab.setOnClickListener(GeoFencingDemo.this);
         status_cv.setOnClickListener(GeoFencingDemo.this);
         logout_cv.setOnClickListener(GeoFencingDemo.this);
@@ -964,7 +964,11 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
                     if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
                         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
-                    } else {
+                    } else if ( android.os.Build.MANUFACTURER.equals("vivo")){
+                        Toast.makeText(getBaseContext(),"vivo mobile",Toast.LENGTH_SHORT).show();
+                       //  alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+                        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 30000, pendingIntent);
+                    }else {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                             alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
                             // only for gingerbread and newer versions
@@ -1028,16 +1032,16 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.custom_dialog);
 
-        TextView text = (TextView) dialog.findViewById(R.id.text_dialog);
+        TextView text = dialog.findViewById(R.id.text_dialog);
         text.setText(msg);
 
-        ImageView b = (ImageView) dialog.findViewById(R.id.b);
+        ImageView b = dialog.findViewById(R.id.b);
         if (status.equals("yes")) {
             b.setVisibility(View.VISIBLE);
         } else {
             b.setVisibility(View.GONE);
         }
-        Button dialogButton = (Button) dialog.findViewById(R.id.btn_dialog);
+        Button dialogButton = dialog.findViewById(R.id.btn_dialog);
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

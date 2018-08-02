@@ -37,7 +37,8 @@ public class GetUserReportsAdapter extends RecyclerView.Adapter<GetUserReportsAd
     ArrayList<Reports> reports;
     int Rowlayout;
     Context context;
-      DisplayImageOptions options;
+    DisplayImageOptions options;
+
     public GetUserReportsAdapter(ArrayList<Reports> reports, int check_single, Context applicationContext) {
         this.context = applicationContext;
         this.Rowlayout = check_single;
@@ -117,17 +118,19 @@ public class GetUserReportsAdapter extends RecyclerView.Adapter<GetUserReportsAd
                 } else {
                     Intent questions = new Intent(context, QuestionsDisplay.class);
                     questions.putExtra("questions", reports.get(position).getMessagedescription());
+                    questions.putExtra("image",reports.get(position).getPhoto());
                     questions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(questions);
                 }
             }
         });
-        if (reports.get(position).getPhoto().equals("")){
-            holder.statsu_img.setImageDrawable(context.getResources().getDrawable(R.drawable.noimage));
+        if (reports.get(position).getPhoto().equals("")) {
+            holder.statsu_img.setScaleType(ImageView.ScaleType.FIT_XY);
+            holder.statsu_img.setBackground(context.getResources().getDrawable(R.drawable.imgnoavailable));
 
-        }else {
+        } else {
             ImageLoader.getInstance()
-                    .displayImage("http://125.62.194.181/tracker/"+reports.get(position).getPhoto(), holder.statsu_img, options);
+                    .displayImage("http://125.62.194.181/tracker/" + reports.get(position).getPhoto(), holder.statsu_img, options);
         }
 
     }
