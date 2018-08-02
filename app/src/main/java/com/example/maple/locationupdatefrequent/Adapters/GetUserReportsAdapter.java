@@ -117,13 +117,19 @@ public class GetUserReportsAdapter extends RecyclerView.Adapter<GetUserReportsAd
                 } else {
                     Intent questions = new Intent(context, QuestionsDisplay.class);
                     questions.putExtra("questions", reports.get(position).getMessagedescription());
+                    questions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(questions);
                 }
             }
         });
+        if (reports.get(position).getPhoto().equals("")){
+            holder.statsu_img.setImageDrawable(context.getResources().getDrawable(R.drawable.noimage));
 
-        ImageLoader.getInstance()
-                .displayImage("http://125.62.194.181/tracker/"+reports.get(position).getPhoto(), holder.statsu_img, options);
+        }else {
+            ImageLoader.getInstance()
+                    .displayImage("http://125.62.194.181/tracker/"+reports.get(position).getPhoto(), holder.statsu_img, options);
+        }
+
     }
 
     @Override

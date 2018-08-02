@@ -3,6 +3,7 @@ package com.example.maple.locationupdatefrequent.Adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.maple.locationupdatefrequent.Helper.ZoomableImageView;
 import com.example.maple.locationupdatefrequent.Models.Question;
 import com.example.maple.locationupdatefrequent.Models.Reports;
 import com.example.maple.locationupdatefrequent.R;
@@ -50,6 +52,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.Chec
         holder.answer_tv.setText(questions.get(position).getAnswer());
         holder.question_tv.setText(questions.get(position).getQuestion());
 
+
     }
 
     @Override
@@ -62,8 +65,10 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.Chec
         ImageView statsu_img;
         CardView card_question;
 
+        ZoomableImageView myimage ;
         public CheckIn(View itemView) {
             super(itemView);
+
             card_question = itemView.findViewById(R.id.card_question);
             question_tv = itemView.findViewById(R.id.question_tv);
             answer_tv = itemView.findViewById(R.id.answer_tv);

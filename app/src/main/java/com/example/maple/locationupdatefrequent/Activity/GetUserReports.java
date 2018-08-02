@@ -66,17 +66,13 @@ public class GetUserReports extends Activity implements View.OnClickListener {
         messages_recyler.setLayoutManager(new LinearLayoutManager(this));
 
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
-        try {
-            progress = new ProgressDialog(this);
-            progress.setMessage("Fetching Admin Messages..");
-            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progress.setIndeterminate(true);
-            progress.setCancelable(false);
-            progress.show();
-            getAdminmessages(s.getString("DeviceId", "").toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        progress = new ProgressDialog(this);
+        progress.setMessage("Fetching Admin Messages..");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        progress.show();
+        getAdminmessages(s.getString("DeviceId", "").toString());
 
     }
 
