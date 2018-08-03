@@ -118,7 +118,10 @@ public class GetUserReportsAdapter extends RecyclerView.Adapter<GetUserReportsAd
                 } else {
                     Intent questions = new Intent(context, QuestionsDisplay.class);
                     questions.putExtra("questions", reports.get(position).getMessagedescription());
-                    questions.putExtra("image",reports.get(position).getPhoto());
+                   /* questions.putExtra("questions","How to make tomato rice ?<br/>Take bowl and pour rice and water ," +
+                            " Make To cut tomatos in another bowl  Make To cut tomatos in another bowl" +
+                            "Make To cut tomatos in another bowl  Make To cut tomatos in another bowl");*/
+                    questions.putExtra("image", reports.get(position).getPhoto());
                     questions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(questions);
                 }

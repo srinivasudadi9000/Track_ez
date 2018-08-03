@@ -20,6 +20,8 @@
     <uses-feature android:name="android.hardware.location.gps" />
     <uses-feature android:name="android.hardware.location" />
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:name=".UILApplication"
         android:allowBackup="true"
@@ -35,7 +37,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@layout/provider_paths" />
+        </provider>
         <!--
         <service
             android:name=".LocationUpdatesIntentService"
@@ -81,10 +91,14 @@
         <activity android:name=".Activity.EditPhone" />
         <activity
             android:name=".Activity.Messages"
-            android:configChanges="keyboard|keyboardHidden"></activity>
-        <activity android:name=".Activity.AdminMessages"></activity>
-        <activity android:name=".Activity.GetUserReports"></activity>
-        <activity android:name=".Activity.QuestionsDisplay"></activity>
+            android:configChanges="keyboard|keyboardHidden" />
+        <activity android:name=".Activity.AdminMessages" />
+        <activity android:name=".Activity.GetUserReports" />
+        <activity android:name=".Activity.QuestionsDisplay" />
+        <activity
+            android:name=".Activity.QD"
+            android:theme="@style/Theme.Transparent" />
+        <activity android:name=".Activity.UploadQuestion"></activity>
     </application>
 
 </manifest>

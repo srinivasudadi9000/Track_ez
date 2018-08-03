@@ -27,6 +27,16 @@
     </style>
 
 
+    <style name="simpledialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/simpleAnimation</item>
+    </style>
+
+    <style name="simpleAnimation">
+        <item name="android:windowEnterAnimation">@anim/slidein</item>
+        <item name="android:windowExitAnimation">@android:anim/slide_out_right</item>
+    </style>
+
+
 
 
 </resources>

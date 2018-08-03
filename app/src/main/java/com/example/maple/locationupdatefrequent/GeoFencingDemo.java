@@ -55,6 +55,7 @@ import com.example.maple.locationupdatefrequent.Activity.EditPhone;
 import com.example.maple.locationupdatefrequent.Activity.GetUserReports;
 import com.example.maple.locationupdatefrequent.Activity.Messages;
 import com.example.maple.locationupdatefrequent.Activity.SplashScreen;
+import com.example.maple.locationupdatefrequent.Activity.UploadQuestion;
 import com.example.maple.locationupdatefrequent.Helper.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -152,7 +153,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     private PermissionHelper permissionHelper;
     FloatingActionButton start_fab;
     TextView statsu_tv, tapstatus_tv, device_id;
-    CardView status_cv, logout_cv, mesages_cardview, admin_msg_cv,recentrep_cv;
+    CardView status_cv, logout_cv, mesages_cardview, admin_msg_cv, recentrep_cv,dailyreport_cv;
     ImageView back_img, refresh_img;
 
     @Override
@@ -171,6 +172,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         mesages_cardview = findViewById(R.id.mesages_cardview);
         admin_msg_cv = findViewById(R.id.admin_msg_cv);
         recentrep_cv = findViewById(R.id.recentrep_cv);
+        dailyreport_cv = findViewById(R.id.dailyreport_cv);
         statsu_tv = findViewById(R.id.statsu_tv);
         tapstatus_tv = findViewById(R.id.tapstatus_tv);
         device_id = findViewById(R.id.device_id);
@@ -179,6 +181,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         status_cv.setOnClickListener(GeoFencingDemo.this);
         logout_cv.setOnClickListener(GeoFencingDemo.this);
         recentrep_cv.setOnClickListener(GeoFencingDemo.this);
+        dailyreport_cv.setOnClickListener(GeoFencingDemo.this);
         mesages_cardview.setOnClickListener(GeoFencingDemo.this);
         admin_msg_cv.setOnClickListener(GeoFencingDemo.this);
         component = new ComponentName(act, LocationUpdatesBroadcastReceiver.class);
@@ -964,11 +967,11 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
                     if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
                         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
-                    } else if ( android.os.Build.MANUFACTURER.equals("vivo")){
-                        Toast.makeText(getBaseContext(),"vivo mobile",Toast.LENGTH_SHORT).show();
-                       //  alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+                    } else if (android.os.Build.MANUFACTURER.equals("vivo")) {
+                        Toast.makeText(getBaseContext(), "vivo mobile", Toast.LENGTH_SHORT).show();
+                        //  alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
                         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 30000, pendingIntent);
-                    }else {
+                    } else {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                             alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
                             // only for gingerbread and newer versions
@@ -1003,6 +1006,10 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
             case R.id.status_cv:
                 Intent attndance_lo = new Intent(GeoFencingDemo.this, Attendance_lo.class);
                 startActivity(attndance_lo);
+                break;
+            case R.id.dailyreport_cv:
+                Intent dailyreport = new Intent(GeoFencingDemo.this, UploadQuestion.class);
+                startActivity(dailyreport);
                 break;
             case R.id.logout_cv:
                 if (statsu_tv.getText().toString().equals("STOP")) {
