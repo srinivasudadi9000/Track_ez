@@ -84,13 +84,13 @@ public class Messages extends Activity implements View.OnClickListener {
             // Toast.makeText(getBaseContext(),latitude+" "+longitude  ,Toast.LENGTH_SHORT).show();
         }
 
-        counter_tv = (TextView) findViewById(R.id.counter_tv);
-        msg_back_img = (ImageView) findViewById(R.id.msg_back_img);
-        send_img = (ImageView) findViewById(R.id.send_img);
-        clear_img = (ImageView) findViewById(R.id.clear_img);
-        messages_recyler = (RecyclerView) findViewById(R.id.messages_recyler);
+        counter_tv = findViewById(R.id.counter_tv);
+        msg_back_img = findViewById(R.id.msg_back_img);
+        send_img = findViewById(R.id.send_img);
+        clear_img = findViewById(R.id.clear_img);
+        messages_recyler = findViewById(R.id.messages_recyler);
         messages_recyler.setLayoutManager(new LinearLayoutManager(this));
-        et_content = (EditText) findViewById(R.id.et_content);
+        et_content = findViewById(R.id.et_content);
         msg_back_img.setOnClickListener(this);
         send_img.setOnClickListener(this);
         clear_img.setOnClickListener(this);
@@ -160,7 +160,7 @@ public class Messages extends Activity implements View.OnClickListener {
         return deviceName;
     }
 
-    public void sendMessage(final String message, final String latitude, final String longitude, final String datetime, final Boolean mobile) throws IOException {
+    public void sendMessage(final String message, final String latitude, final String longitude, final String datetime, final Boolean mobile) {
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
@@ -200,8 +200,8 @@ public class Messages extends Activity implements View.OnClickListener {
             }
 
             @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                 if (!response.isSuccessful()) {
+            public void onResponse(Call call, final Response response) {
+                if (!response.isSuccessful()) {
                     Log.d("result", response.toString());
                     if (!mobile) {
                         progress.dismiss();
@@ -286,17 +286,17 @@ public class Messages extends Activity implements View.OnClickListener {
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.custom_dialog);
 
-        TextView text = (TextView) dialog.findViewById(R.id.text_dialog);
+        TextView text = dialog.findViewById(R.id.text_dialog);
         text.setText(msg);
 
-        ImageView b = (ImageView) dialog.findViewById(R.id.b);
+        ImageView b = dialog.findViewById(R.id.b);
         if (status.equals("yes")) {
             et_content.setText("");
             b.setVisibility(View.VISIBLE);
         } else {
             b.setVisibility(View.GONE);
         }
-        Button dialogButton = (Button) dialog.findViewById(R.id.btn_dialog);
+        Button dialogButton = dialog.findViewById(R.id.btn_dialog);
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

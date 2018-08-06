@@ -4,16 +4,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".Activity.UploadQuestion">
-  <Button
-      android:id="@+id/clickimage"
-      android:text="clickimage"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
-  <ImageView
-      android:src="@drawable/car"
-      android:layout_below="@id/clickimage"
-      android:id="@+id/ivOtherImage2"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/head_ll"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <ImageView
+            android:id="@+id/back_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".6"
+            android:gravity="center"
+            android:text="Daily Report "
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/done_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:src="@drawable/done" />
+    </LinearLayout>
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/category_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_below="@+id/head_ll"></android.support.v7.widget.AppCompatSpinner>
+
+    <LinearLayout
+        android:id="@+id/my_ll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/image_rl"
+        android:layout_below="@+id/category_spinner"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/image_rl"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/clickimage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="clickimage" />
+
+            <ImageView
+                android:id="@+id/ivOtherImage2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/clickimage"
+                android:layout_weight="1"
+                android:src="@drawable/car" />
+        </LinearLayout>
+    </RelativeLayout>
+
 </RelativeLayout>

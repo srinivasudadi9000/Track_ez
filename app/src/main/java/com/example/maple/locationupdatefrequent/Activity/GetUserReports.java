@@ -86,15 +86,19 @@ public class GetUserReports extends Activity implements View.OnClickListener {
     }
 
     public void getAdminmessages(String deviceid) {
+        SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
 
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://125.62.194.181/tracker/trackernew.asmx/GetUserReport?").newBuilder();
         urlBuilder.addQueryParameter("Token", "VVD@14");
-        urlBuilder.addQueryParameter("DeviceNO", "9393111282");
+       /* urlBuilder.addQueryParameter("DeviceNO", "9393111282");
         urlBuilder.addQueryParameter("DeviceID", "2");
-        urlBuilder.addQueryParameter("MobileDeviceID", "4f92900a52d28ab8");
+        urlBuilder.addQueryParameter("MobileDeviceID", "4f92900a52d28ab8");*/
+        urlBuilder.addQueryParameter("DeviceNO", s.getString("deviceno",""));
+        urlBuilder.addQueryParameter("DeviceID", s.getString("DeviceId",""));
+        urlBuilder.addQueryParameter("MobileDeviceID", s.getString("MobileDeviceID",""));
 
         String url = urlBuilder.build().toString();
 

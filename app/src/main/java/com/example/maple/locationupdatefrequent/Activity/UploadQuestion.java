@@ -1,7 +1,6 @@
 package com.example.maple.locationupdatefrequent.Activity;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,81 +10,142 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatSpinner;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.maple.locationupdatefrequent.Helper.DBHelper;
+import com.example.maple.locationupdatefrequent.GPSTracker;
+import com.example.maple.locationupdatefrequent.Models.CenterDetails;
+import com.example.maple.locationupdatefrequent.Models.Checkins;
+import com.example.maple.locationupdatefrequent.Models.GetCat;
+import com.example.maple.locationupdatefrequent.Models.GetParams;
+import com.example.maple.locationupdatefrequent.Models.QuestionsParams;
 import com.example.maple.locationupdatefrequent.Models.UploadInstall;
 import com.example.maple.locationupdatefrequent.R;
 import com.example.maple.locationupdatefrequent.rest.ApiClient;
 import com.example.maple.locationupdatefrequent.rest.ApiInterface;
-import com.squareup.okhttp.MultipartBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import retrofit2.http.Part;
-import retrofit2.http.Query;
 
-public class UploadQuestion extends AppCompatActivity implements View.OnClickListener {
+public class UploadQuestion extends Activity implements View.OnClickListener {
     ProgressDialog progress;
     File otherImagefile2_offline;
     String offlineimgpath2 = "";
     File otherImagefile2 = null;
     MultipartBody.Part imageFilePart2;
-    Uri iv_url2 ;
+    Uri iv_url2;
     Button clickimage;
     ImageView ivOtherImage2;
-    int O_IMAGE2=2;
+    int O_IMAGE2 = 2;
+    GPSTracker gps;
+    String latitude, longitude;
+    ArrayList<CenterDetails> centerDetails;
+    ArrayList<String> center;
+    AppCompatSpinner category_spinner;
+    ImageView back_image, done_img;
+    TextView[] tvArray;
+    EditText[] etArray;
+    int len;
+    String formattedMessage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_question);
+        center = new ArrayList<>();
+        centerDetails = new ArrayList<CenterDetails>();
+        category_spinner = findViewById(R.id.category_spinner);
+        done_img = findViewById(R.id.done_img);
+        back_image = findViewById(R.id.back_image);
+        back_image.setOnClickListener(this);
+        done_img.setOnClickListener(this);
         ivOtherImage2 = findViewById(R.id.ivOtherImage2);
         clickimage = findViewById(R.id.clickimage);
         clickimage.setOnClickListener(this);
         ivOtherImage2.setOnClickListener(this);
+        gps = new GPSTracker(this);
+        if (!gps.isGPSEnabled && !gps.isNetworkEnabled) {
+            Log.d("networkd", "false");
+            gps.showSettingsAlert(UploadQuestion.this);
+        } else {
+            latitude = String.valueOf(gps.getLatitude());
+            longitude = String.valueOf(gps.getLongitude());
+            // Toast.makeText(getBaseContext(),latitude+" "+longitude  ,Toast.LENGTH_SHORT).show();
+        }
+
+        SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
+        GetCenterDetails("VVD@14", s.getString("DeviceId", ""));
     }
 
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
+            case R.id.back_image:
+                finish();
+                break;
+            case R.id.done_img:
+
+                for (int i = 0; i < len; i++) {
+                    formattedMessage = formattedMessage + tvArray[i].getText().toString() + "<br/>Obs. " + etArray[i].getText().toString();
+                    if (i != len - 1)
+                        formattedMessage = formattedMessage + "<br/><br/>";
+                }
+
+                SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                String millisInString = dateFormat.format(new Date());
+
+                updateInstall("VVD@14", s.getString("DeviceId", ""),
+                        formattedMessage, "12.22", "83.22", s.getString("PersonName", ""),
+                        millisInString, "1", s.getString("MobileDeviceID", ""), otherImagefile2.getAbsolutePath());
+
+                break;
             case R.id.clickimage:
-                 String root = Environment.getExternalStorageDirectory().toString();
+                String root = Environment.getExternalStorageDirectory().toString();
                 File myDir = new File(root + "/RecceImages/");
                 myDir.mkdirs();
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 otherImagefile2 = new File(myDir,
                         String.valueOf(System.currentTimeMillis()) + ".jpg");
-               //  iv_url2 = Uri.fromFile(otherImagefile2);
+                //  iv_url2 = Uri.fromFile(otherImagefile2);
 
-               iv_url2= FileProvider.getUriForFile(getApplicationContext(),
+                iv_url2 = FileProvider.getUriForFile(getApplicationContext(),
                         getApplication().getPackageName() + ".provider", otherImagefile2);
 
 
@@ -93,77 +153,174 @@ public class UploadQuestion extends AppCompatActivity implements View.OnClickLis
                 startActivityForResult(intent, O_IMAGE2);
                 break;
 
-            case  R.id.ivOtherImage2:
-                SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
-                imageFilePart2 = MultipartBody.Part.createFormData("Photo", otherImagefile2.getName(),
-                        RequestBody.create(MediaType.parse("image"), otherImagefile2));
-                offlineimgpath2 = otherImagefile2.getAbsolutePath();
+            case R.id.ivOtherImage2:
 
-
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                String millisInString = dateFormat.format(new Date());
-                RequestBody Token = RequestBody.create(MediaType.parse("text/plain"),"VVD@14");
-                RequestBody DeviceID = RequestBody.create(MediaType.parse("text/plain"), s.getString("DeviceId", "") );
-                RequestBody MessageDescription = RequestBody.create(MediaType.parse("text/plain"),"dadi how are you ");
-                RequestBody Long = RequestBody.create(MediaType.parse("text/plain"),"83.33");
-                RequestBody Lat = RequestBody.create(MediaType.parse("text/plain"),"12.22");
-                RequestBody ReportedFrom = RequestBody.create(MediaType.parse("text/plain"),s.getString("PersonName", ""));
-                RequestBody ReportedDateTime = RequestBody.create(MediaType.parse("text/plain"),millisInString);
-                RequestBody DR = RequestBody.create(MediaType.parse("text/plain"),"1");
-                RequestBody MobileDeviceID = RequestBody.create(MediaType.parse("text/plain"),s.getString("MobileDeviceID", ""));
-                updateInstall(Token, DeviceID,
-                        MessageDescription, Long, Lat, ReportedFrom, ReportedDateTime, DR,MobileDeviceID,imageFilePart2);
 
                 break;
         }
     }
 
-    public void updateInstall(@Part("Token") RequestBody Token,
-                              @Part("DeviceID") RequestBody DeviceID, @Part("MessageDescription") RequestBody MessageDescription,
-                              @Part("Long") final RequestBody Long, @Part("Lat") final RequestBody Lat,
-                              @Part("ReportedFrom") final RequestBody ReportedFrom, @Part("ReportedDateTime") final RequestBody ReportedDateTime,
-                              @Part("DR") final RequestBody DR, @Part("MobileDeviceID") final RequestBody MobileDeviceID,
-                              @Part final MultipartBody.Part imageFilePart2) {
+    public void GetReportParams() {
         ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
-        retrofit2.Call<UploadInstall> call = apiService.getUploadInstall(Token, DeviceID, MessageDescription,
-                Long, Lat, ReportedFrom, ReportedDateTime, DR,MobileDeviceID,imageFilePart2);
+        SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
+        retrofit2.Call<GetParams> call = apiService.GetParamDetails("VVD@14", s.getString("CategoryID", ""), s.getString("DeviceId", ""),
+                s.getString("MobileDeviceID", ""));
+        call.enqueue(new retrofit2.Callback<GetParams>() {
+            @Override
+            public void onResponse(retrofit2.Call<GetParams> call, retrofit2.Response<GetParams> response) {
+                Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().toString()));
+                if (response.isSuccessful()) {
+                    List<QuestionsParams> cd = response.body().getCenters();
+
+                    tvArray = new TextView[cd.size()];
+                    etArray = new EditText[cd.size()];
+                    LinearLayout llMain = findViewById(R.id.my_ll);
+                    llMain.setPadding(10, 10, 10, 10);
+                    len = cd.size();
+                    for (int i = 0; i < cd.size(); i++) {
+                        //TextView tv = new TextView(this);
+                        tvArray[i] = new TextView(UploadQuestion.this);
+                        tvArray[i].setText(cd.get(i).getParameterDescription().toString());
+                        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        tvArray[i].setLayoutParams(p);
+                        tvArray[i].setTypeface(tvArray[i].getTypeface(), Typeface.BOLD);
+                        llMain.addView(tvArray[i]);
+                        //EditText et = new EditText(this);
+                        etArray[i] = new EditText(UploadQuestion.this);
+                        etArray[i].setLayoutParams(p);
+                        llMain.addView(etArray[i]);
+                    }
+                } else {
+
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<GetParams> call, Throwable t) {
+                Log.d("response error", t.toString());
+            }
+        });
+
+
+    }
+
+    public void GetCenterDetails(String Token, String DeviceID) {
+        System.out.println("Token = " + Token + "DeviceId  = " + DeviceID);
+        ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
+
+        retrofit2.Call<GetCat> call = apiService.GetCenterDetails(Token, DeviceID);
+        call.enqueue(new retrofit2.Callback<GetCat>() {
+            @Override
+            public void onResponse(retrofit2.Call<GetCat> call, retrofit2.Response<GetCat> response) {
+                Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().toString()));
+                if (response.isSuccessful()) {
+                    center.add("-Select Category-");
+                    List<CenterDetails> cd = response.body().getCenters();
+                    System.out.println("sizeof cener" + cd.size());
+                    for (int i = 0; i < cd.size(); i++) {
+                        System.out.println("centerno " + cd.get(i).getCenterNumber());
+                        // centerDetails.add(new CenterDetails(  cd.get(i).getCenterNumber(),  cd.get(i).getCenterid()));
+                        center.add(cd.get(i).getCenterNumber().toString());
+                    }
+
+                } else {
+
+                }
+                setadptertolist();
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<GetCat> call, Throwable t) {
+                Log.d("response error", t.toString());
+            }
+        });
+
+
+    }
+
+    public void setadptertolist() {
+
+        ArrayAdapter<String> plot_number = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, center);
+        category_spinner.setAdapter(plot_number);
+        GetReportParams();
+    }
+
+    public void updateInstall(String Token,
+                              String DeviceID, String MessageDescription,
+                              String Long, String Lat,
+                              String ReportedFrom, String ReportedDateTime,
+                              String DR, String MobileDeviceID,
+                              String imagepath) {
+        System.out.println("Token = " + Token + "DeviceId  = " + DeviceID + " Message Des = " + MessageDescription + " Lat = " + Lat + " Long = " + Long + " Reported Time = "
+                + ReportedDateTime + " ReportFrom = " + ReportedFrom + " DR = " + DR + " MobileDeviceId = " + MobileDeviceID + " IMageBitmap " + getStringImage(imagepath));
+        ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
+
+        retrofit2.Call<UploadInstall> call = apiService.sendMessage(Token, DeviceID, MessageDescription, Long, Lat, ReportedFrom, ReportedDateTime, DR, MobileDeviceID,
+                getStringImage(imagepath));
         call.enqueue(new retrofit2.Callback<UploadInstall>() {
             @Override
             public void onResponse(retrofit2.Call<UploadInstall> call, retrofit2.Response<UploadInstall> response) {
-                String result = String.valueOf(response.code());
+                Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().getMessage_data()));
+                if (response.isSuccessful()) {
+                    JsonArray org = response.body().getMessage_data();
+                    for (int i = 0; i < org.size(); i++) {
+                        JsonObject ss = (JsonObject) org.get(i);
+                        String valid = ss.get("Response").toString();
+                        if (valid.equals("SUCCESS")) {
+                            System.out.println("Successfully uploaded image... " + ss.get("Response").toString());
+                        } else {
+                            System.out.println("Successfully not uploaded image... " + ss.get("Response").toString());
+                        }
+                    }
+                } else {
 
-                Log.d("goodma",result+" "+offlineimgpath2);
-                Log.d("goodma",offlineimgpath2+ "  ");
-
+                }
             }
 
             @Override
-            public void onFailure(retrofit2.Call<UploadInstall> call, Throwable throwable) {
-                //  Toast.makeText(getBaseContext(), throwable.toString(), Toast.LENGTH_SHORT).show();
-
-
-                Log.d("message_image", throwable.toString());
+            public void onFailure(retrofit2.Call<UploadInstall> call, Throwable t) {
+                Log.d("response error", t.toString());
             }
         });
     }
+
+    private String getStringImage(String path) {
+        String encodedImage = null;
+        try {
+
+            if (path != null) {
+                Bitmap mBitmap = BitmapFactory.decodeFile(path);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                mBitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos); //bm is the bitmap object
+                byte[] byteArrayImage = baos.toByteArray();
+                encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+            }
+        } catch (Exception e) {
+            Log.d("unable to read image", e.toString());
+//            Toast.makeText(MainActivity1.this,"Retake picture",Toast.LENGTH_SHORT).show();
+        }
+        return encodedImage;
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-             try {
-                BitmapFactory.Options opt = new BitmapFactory.Options();
-                opt.inSampleSize = 8;
-                opt.inMutable = true;
-                Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
-                ivOtherImage2.setScaleType(ImageView.ScaleType.FIT_XY);
-                ivOtherImage2.setImageBitmap(bmImage);
-                compressImage(otherImagefile2.getAbsolutePath().toString());
-            } catch (Exception e) {
-                Log.e("msg", e.getMessage());
-            }
+        try {
+            BitmapFactory.Options opt = new BitmapFactory.Options();
+            opt.inSampleSize = 8;
+            opt.inMutable = true;
+            Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
+            ivOtherImage2.setScaleType(ImageView.ScaleType.FIT_XY);
+            ivOtherImage2.setImageBitmap(bmImage);
+            compressImage(otherImagefile2.getAbsolutePath().toString());
+        } catch (Exception e) {
+            Log.e("msg", e.getMessage());
+        }
 
     }
+
     private String getRealPathFromURI(String contentURI) {
         Uri contentUri = Uri.parse(contentURI);
         Cursor cursor = getContentResolver().query(contentUri, null, null, null, null);
