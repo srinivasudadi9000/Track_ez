@@ -1,6 +1,7 @@
 package com.example.maple.locationupdatefrequent.Activity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +25,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,13 +35,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.maple.locationupdatefrequent.GPSTracker;
+import com.example.maple.locationupdatefrequent.GeoFencingDemo;
+import com.example.maple.locationupdatefrequent.Helper.DBHelper;
 import com.example.maple.locationupdatefrequent.Models.CenterDetails;
 import com.example.maple.locationupdatefrequent.Models.Checkins;
+import com.example.maple.locationupdatefrequent.Models.DailyReportState;
 import com.example.maple.locationupdatefrequent.Models.GetCat;
 import com.example.maple.locationupdatefrequent.Models.GetParams;
 import com.example.maple.locationupdatefrequent.Models.QuestionsParams;
 import com.example.maple.locationupdatefrequent.Models.UploadInstall;
 import com.example.maple.locationupdatefrequent.R;
+import com.example.maple.locationupdatefrequent.Validations;
 import com.example.maple.locationupdatefrequent.rest.ApiClient;
 import com.example.maple.locationupdatefrequent.rest.ApiInterface;
 import com.google.gson.JsonArray;
@@ -69,7 +75,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     File otherImagefile2 = null;
     MultipartBody.Part imageFilePart2;
     Uri iv_url2;
-    Button clickimage;
+    TextView clickimage;
     ImageView ivOtherImage2;
     int O_IMAGE2 = 2;
     GPSTracker gps;
@@ -81,7 +87,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     TextView[] tvArray;
     EditText[] etArray;
     int len;
-    String formattedMessage;
+    String formattedMessage="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +102,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
         done_img.setOnClickListener(this);
         ivOtherImage2 = findViewById(R.id.ivOtherImage2);
         clickimage = findViewById(R.id.clickimage);
-        clickimage.setOnClickListener(this);
+        // clickimage.setOnClickListener(this);
         ivOtherImage2.setOnClickListener(this);
         gps = new GPSTracker(this);
         if (!gps.isGPSEnabled && !gps.isNetworkEnabled) {
@@ -109,7 +115,11 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
         }
 
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
-        GetCenterDetails("VVD@14", s.getString("DeviceId", ""));
+        if (Validations.hasActiveInternetConnection(UploadQuestion.this)) {
+            GetCenterDetails("VVD@14", s.getString("DeviceId", ""));
+        }else {
+
+        }
     }
 
 
@@ -130,13 +140,19 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 String millisInString = dateFormat.format(new Date());
+                if (Validations.hasActiveInternetConnection(UploadQuestion.this)) {
+                    updateInstall("VVD@14", s.getString("DeviceId", ""),
+                            formattedMessage, latitude,longitude, s.getString("PersonName", ""),
+                            millisInString, "1", s.getString("MobileDeviceID", ""), otherImagefile2.getAbsolutePath());
 
-                updateInstall("VVD@14", s.getString("DeviceId", ""),
-                        formattedMessage, "12.22", "83.22", s.getString("PersonName", ""),
-                        millisInString, "1", s.getString("MobileDeviceID", ""), otherImagefile2.getAbsolutePath());
+                }else {
+                    DBHelper dbHelper = new DBHelper(UploadQuestion.this);
+                    dbHelper.insertReport(latitude,longitude,formattedMessage.replace("'",""),millisInString,"offline",otherImagefile2.getAbsolutePath(),"local",
+                            UploadQuestion.this);
+                }
 
                 break;
-            case R.id.clickimage:
+            case R.id.ivOtherImage2:
                 String root = Environment.getExternalStorageDirectory().toString();
                 File myDir = new File(root + "/RecceImages/");
                 myDir.mkdirs();
@@ -152,15 +168,16 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, iv_url2);
                 startActivityForResult(intent, O_IMAGE2);
                 break;
-
-            case R.id.ivOtherImage2:
-
-
-                break;
         }
     }
 
     public void GetReportParams() {
+        progress = new ProgressDialog(UploadQuestion.this);
+        progress.setMessage("Getting Report Questions data from server..");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        progress.show();
         ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
         retrofit2.Call<GetParams> call = apiService.GetParamDetails("VVD@14", s.getString("CategoryID", ""), s.getString("DeviceId", ""),
@@ -169,8 +186,9 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
             @Override
             public void onResponse(retrofit2.Call<GetParams> call, retrofit2.Response<GetParams> response) {
                 Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().toString()));
+                progress.dismiss();
                 if (response.isSuccessful()) {
-                    List<QuestionsParams> cd = response.body().getCenters();
+                    List<QuestionsParams> cd = response.body().getQuestionsParams();
 
                     tvArray = new TextView[cd.size()];
                     etArray = new EditText[cd.size()];
@@ -190,6 +208,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                         etArray[i].setLayoutParams(p);
                         llMain.addView(etArray[i]);
                     }
+
                 } else {
 
                 }
@@ -197,6 +216,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
 
             @Override
             public void onFailure(retrofit2.Call<GetParams> call, Throwable t) {
+                progress.dismiss();
                 Log.d("response error", t.toString());
             }
         });
@@ -205,6 +225,13 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     }
 
     public void GetCenterDetails(String Token, String DeviceID) {
+        center.add("-Select Category-");
+        progress = new ProgressDialog(UploadQuestion.this);
+        progress.setMessage("Fetching Category From Server..");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        progress.show();
         System.out.println("Token = " + Token + "DeviceId  = " + DeviceID);
         ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
 
@@ -212,9 +239,10 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
         call.enqueue(new retrofit2.Callback<GetCat>() {
             @Override
             public void onResponse(retrofit2.Call<GetCat> call, retrofit2.Response<GetCat> response) {
+                progress.dismiss();
                 Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().toString()));
                 if (response.isSuccessful()) {
-                    center.add("-Select Category-");
+
                     List<CenterDetails> cd = response.body().getCenters();
                     System.out.println("sizeof cener" + cd.size());
                     for (int i = 0; i < cd.size(); i++) {
@@ -225,6 +253,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
 
                 } else {
 
+                    //  finish();
                 }
                 setadptertolist();
             }
@@ -232,6 +261,8 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
             @Override
             public void onFailure(retrofit2.Call<GetCat> call, Throwable t) {
                 Log.d("response error", t.toString());
+                progress.dismiss();
+                setadptertolist();
             }
         });
 
@@ -246,11 +277,17 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     }
 
     public void updateInstall(String Token,
-                              String DeviceID, String MessageDescription,
-                              String Long, String Lat,
-                              String ReportedFrom, String ReportedDateTime,
+                              String DeviceID, final String MessageDescription,
+                              final String Long, final String Lat,
+                              String ReportedFrom, final String ReportedDateTime,
                               String DR, String MobileDeviceID,
-                              String imagepath) {
+                              final String imagepath) {
+        progress = new ProgressDialog(UploadQuestion.this);
+        progress.setMessage("Uploading Q & A To Server..");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        progress.show();
         System.out.println("Token = " + Token + "DeviceId  = " + DeviceID + " Message Des = " + MessageDescription + " Lat = " + Lat + " Long = " + Long + " Reported Time = "
                 + ReportedDateTime + " ReportFrom = " + ReportedFrom + " DR = " + DR + " MobileDeviceId = " + MobileDeviceID + " IMageBitmap " + getStringImage(imagepath));
         ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
@@ -260,28 +297,64 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
         call.enqueue(new retrofit2.Callback<UploadInstall>() {
             @Override
             public void onResponse(retrofit2.Call<UploadInstall> call, retrofit2.Response<UploadInstall> response) {
+                progress.dismiss();
                 Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().getMessage_data()));
                 if (response.isSuccessful()) {
-                    JsonArray org = response.body().getMessage_data();
-                    for (int i = 0; i < org.size(); i++) {
-                        JsonObject ss = (JsonObject) org.get(i);
-                        String valid = ss.get("Response").toString();
-                        if (valid.equals("SUCCESS")) {
-                            System.out.println("Successfully uploaded image... " + ss.get("Response").toString());
-                        } else {
-                            System.out.println("Successfully not uploaded image... " + ss.get("Response").toString());
-                        }
-                    }
-                } else {
 
+                    List<DailyReportState> cd = response.body().getMessage_data();
+                    if (cd.get(0).getResponse().equals("Fail")) {
+                        System.out.println("Failureeeeeeeee");
+                        showDialog(UploadQuestion.this,"Unable sent daily report ,internal error occured please contact admin (or ) please try again","no");
+                    } else {
+                        showDialog(UploadQuestion.this,"Successfully sent daily report thankyou","yes");
+                        System.out.println("sucessssssssssssss");
+                    }
+                 } else {
+                    DBHelper dbHelper = new DBHelper(UploadQuestion.this);
+                    dbHelper.insertReport(Lat,Long,MessageDescription.replace("'",""),ReportedDateTime,"offline",imagepath,"local",
+                            UploadQuestion.this);
                 }
             }
 
             @Override
             public void onFailure(retrofit2.Call<UploadInstall> call, Throwable t) {
+                progress.dismiss();
                 Log.d("response error", t.toString());
+                DBHelper dbHelper = new DBHelper(UploadQuestion.this);
+                dbHelper.insertReport(Lat,Long,MessageDescription.replace("'",""),ReportedDateTime,"offline",imagepath,"local",
+                        UploadQuestion.this);
             }
         });
+    }
+
+    public void showDialog(Activity activity, String msg, final String status) {
+        final Dialog dialog = new Dialog(activity, R.style.PauseDialog);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.custom_dialog);
+
+        TextView text = dialog.findViewById(R.id.text_dialog);
+        text.setText(msg);
+
+        ImageView b = dialog.findViewById(R.id.b);
+        if (status.equals("yes")) {
+            b.setVisibility(View.VISIBLE);
+        } else {
+            b.setVisibility(View.GONE);
+        }
+        Button dialogButton = dialog.findViewById(R.id.btn_dialog);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                dialog.dismiss();
+                Intent upload= new Intent(UploadQuestion.this,UploadQuestion.class);
+                startActivity(upload);
+                finish();
+            }
+        });
+        dialog.show();
+
     }
 
     private String getStringImage(String path) {

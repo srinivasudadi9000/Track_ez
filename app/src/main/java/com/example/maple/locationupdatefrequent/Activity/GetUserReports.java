@@ -2,10 +2,16 @@ package com.example.maple.locationupdatefrequent.Activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -13,19 +19,32 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.maple.locationupdatefrequent.Adapters.AdminMessagingAdapter;
+import com.example.maple.locationupdatefrequent.Adapters.CheckinAdapter;
 import com.example.maple.locationupdatefrequent.Adapters.GetUserReportsAdapter;
+import com.example.maple.locationupdatefrequent.Attendance_lo;
 import com.example.maple.locationupdatefrequent.GPSTracker;
+import com.example.maple.locationupdatefrequent.Helper.DBHelper;
 import com.example.maple.locationupdatefrequent.Models.Admin;
+import com.example.maple.locationupdatefrequent.Models.Checkins;
+import com.example.maple.locationupdatefrequent.Models.DailyReportState;
 import com.example.maple.locationupdatefrequent.Models.Reports;
+import com.example.maple.locationupdatefrequent.Models.UploadInstall;
 import com.example.maple.locationupdatefrequent.R;
+import com.example.maple.locationupdatefrequent.Validations;
+import com.example.maple.locationupdatefrequent.rest.ApiClient;
+import com.example.maple.locationupdatefrequent.rest.ApiInterface;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -66,13 +85,24 @@ public class GetUserReports extends Activity implements View.OnClickListener {
         messages_recyler.setLayoutManager(new LinearLayoutManager(this));
 
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
-        progress = new ProgressDialog(this);
-        progress.setMessage("Fetching Admin Messages..");
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.setIndeterminate(true);
-        progress.setCancelable(false);
-        progress.show();
-        getAdminmessages(s.getString("DeviceId", "").toString());
+
+        if (Validations.hasActiveInternetConnection(GetUserReports.this)) {
+            progress = new ProgressDialog(this);
+            progress.setMessage("Fetching Admin Messages..");
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.show();
+            getUserReports(s.getString("DeviceId", "").toString());
+        } else {
+            progress = new ProgressDialog(this);
+            progress.setMessage("Fetching Admin Messages..");
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.show();
+            getreports_from_local();
+        }
 
     }
 
@@ -80,12 +110,13 @@ public class GetUserReports extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.msg_back_img:
-                finish();
+                //  finish();
+                getreports_from_local();
                 break;
         }
     }
 
-    public void getAdminmessages(String deviceid) {
+    public void getUserReports(String deviceid) {
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
 
         // avoid creating several instances, should be singleon
@@ -96,9 +127,9 @@ public class GetUserReports extends Activity implements View.OnClickListener {
        /* urlBuilder.addQueryParameter("DeviceNO", "9393111282");
         urlBuilder.addQueryParameter("DeviceID", "2");
         urlBuilder.addQueryParameter("MobileDeviceID", "4f92900a52d28ab8");*/
-        urlBuilder.addQueryParameter("DeviceNO", s.getString("deviceno",""));
-        urlBuilder.addQueryParameter("DeviceID", s.getString("DeviceId",""));
-        urlBuilder.addQueryParameter("MobileDeviceID", s.getString("MobileDeviceID",""));
+        urlBuilder.addQueryParameter("DeviceNO", s.getString("deviceno", ""));
+        urlBuilder.addQueryParameter("DeviceID", s.getString("DeviceId", ""));
+        urlBuilder.addQueryParameter("MobileDeviceID", s.getString("MobileDeviceID", ""));
 
         String url = urlBuilder.build().toString();
 
@@ -129,7 +160,21 @@ public class GetUserReports extends Activity implements View.OnClickListener {
                                 JSONObject values = jsonArray.getJSONObject(i);
                                 Log.d("hello", values.getString("messagedescription"));
                                 Log.d("hello", values.getString("messagedatetime"));
+                                SQLiteDatabase db = openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
+                                Cursor c = db.rawQuery("SELECT * FROM dailyreports WHERE rep_date='" + values.getString("messagedatetime") + "'", null);
+                                if (c.moveToFirst()) {
+                                    Log.d("UPdate", "updating......");
+                                    String strSQL = "UPDATE dailyreports SET msg = '" + values.getString("messagedescription") + "',rep_date='" +
+                                            values.getString("messagedatetime") + "',imagepath='" + values.getString("Photo") +
+                                            "' WHERE rep_date = '" + values.getString("messagedatetime") + "'";
+                                    db.execSQL(strSQL);
+                                } else {
+                                    DBHelper dbHelper = new DBHelper();
+                                    dbHelper.insertReport("", "", values.getString("messagedescription"), "",
+                                            values.getString("messagedatetime"), values.getString("Photo"), "online", GetUserReports.this);
+                                    Log.d("INserting", "INserting......");
 
+                                }
                                 reports.add(new Reports(values.getString("messagedescription"), values.getString("Photo"),
                                         values.getString("messagedatetime"), ""));
                             }
@@ -153,6 +198,96 @@ public class GetUserReports extends Activity implements View.OnClickListener {
                     Log.d("result_else", response.body().toString());
                     Log.e("TAG", "response 33: " + new Gson().toJson(response.body()));
                 }
+            }
+        });
+    }
+
+    public void getreports_from_local() {
+        Calendar cd = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        String cdt_date = sdf.format(cd.getTime());
+
+        Log.d("displaycount", cdt_date.toString());
+        SQLiteDatabase db;
+        db = openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
+
+        Cursor c = db.rawQuery("SELECT * FROM dailyreports ORDER BY rep_date DESC", null);
+        Log.d("overallstring", c.toString());
+        String ccc = String.valueOf(c.getCount());
+        // Toast.makeText(getBaseContext(),"installation "+ccc.toString(),Toast.LENGTH_SHORT).show();
+        Log.d("displaycount", ccc);
+        if (c.moveToFirst()) {
+            while (!c.isAfterLast()) {
+                reports.add(new Reports(c.getString(c.getColumnIndex("msg")), c.getString(c.getColumnIndex("imagepath")),
+                        c.getString(c.getColumnIndex("rep_date")), c.getString(c.getColumnIndex("status"))));
+
+                if (Validations.hasActiveInternetConnection(GetUserReports.this)) {
+                    if (c.getString(c.getColumnIndex("status")).equals("local")) {
+                        sendtoserver(c.getString(c.getColumnIndex("msg")), c.getString(c.getColumnIndex("imagepath")),
+                                c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
+                                c.getString(c.getColumnIndex("cdt")));
+                    }
+                }
+                c.moveToNext();
+            }
+        }
+        db.close();
+        getUserReportsAdapter = new GetUserReportsAdapter(reports, R.layout.userreports_single, getApplicationContext());
+        messages_recyler.setAdapter(getUserReportsAdapter);
+        getUserReportsAdapter.notifyDataSetChanged();
+        //finish();
+        progress.dismiss();
+    }
+
+    private String getStringImage(String path) {
+        String encodedImage = null;
+        try {
+
+            if (path != null) {
+                Bitmap mBitmap = BitmapFactory.decodeFile(path);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                mBitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos); //bm is the bitmap object
+                byte[] byteArrayImage = baos.toByteArray();
+                encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+            }
+        } catch (Exception e) {
+            Log.d("unable to read image", e.toString());
+//            Toast.makeText(MainActivity1.this,"Retake picture",Toast.LENGTH_SHORT).show();
+        }
+        return encodedImage;
+    }
+
+    public void sendtoserver(final String MessageDescription, final String imagepath, final String Lat, final String Long, final String cdt) {
+        SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
+
+        ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
+
+        retrofit2.Call<UploadInstall> call = apiService.sendMessage("VVD@14", s.getString("DeviceId", ""), MessageDescription, Long, Lat,
+                s.getString("personname", ""), cdt, "1", s.getString("MobileDeviceID", ""),
+                getStringImage(imagepath));
+        call.enqueue(new retrofit2.Callback<UploadInstall>() {
+            @Override
+            public void onResponse(retrofit2.Call<UploadInstall> call, retrofit2.Response<UploadInstall> response) {
+
+                Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().getMessage_data()));
+                if (response.isSuccessful()) {
+
+                    List<DailyReportState> cd = response.body().getMessage_data();
+                    if (cd.get(0).getResponse().equals("Fail")) {
+                        System.out.println("Failureeeeeeeee");
+                    } else {
+                        SQLiteDatabase db = openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
+                        String strSQL = "UPDATE dailyreports SET status = 'online' WHERE cdt = '" + cdt + "'";
+                        db.execSQL(strSQL);
+                        System.out.println("sucessssssssssssss");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<UploadInstall> call, Throwable t) {
+                Log.d("response error", t.toString());
+
             }
         });
     }

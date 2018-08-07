@@ -34,7 +34,7 @@
             android:layout_weight=".2"
             android:gravity="center"
             android:text="Admin Messages"
-            android:textAllCaps="true"
+            android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="20dp"
             android:textStyle="bold" />

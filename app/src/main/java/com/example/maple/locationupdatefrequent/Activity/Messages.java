@@ -118,21 +118,13 @@ public class Messages extends Activity implements View.OnClickListener {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                     String millisInString = dateFormat.format(new Date());
                     if (Validations.hasActiveInternetConnection(Messages.this)) {
-                        try {
-                            progress = new ProgressDialog(this);
-                            progress.setMessage("Fetching Messages..");
-                            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                            progress.setIndeterminate(true);
-                            progress.setCancelable(false);
-                            progress.show();
-                            sendMessage(et_content.getText().toString(), latitude, longitude, millisInString, false);
-                        } catch (IOException e) {
-                            progress.dismiss();
-                            DBHelper dbHelper = new DBHelper(Messages.this);
-                            dbHelper.insertMessage(latitude, longitude, et_content.getText().toString(), millisInString, "local", Messages.this);
-
-                            e.printStackTrace();
-                        }
+                        progress = new ProgressDialog(this);
+                        progress.setMessage("Fetching Messages..");
+                        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        progress.setIndeterminate(true);
+                        progress.setCancelable(false);
+                        progress.show();
+                        sendMessage(et_content.getText().toString(), latitude, longitude, millisInString, false);
                     } else {
                         DBHelper dbHelper = new DBHelper(Messages.this);
                         dbHelper.insertMessage(latitude, longitude, et_content.getText().toString(), millisInString, "local", Messages.this);
@@ -254,19 +246,14 @@ public class Messages extends Activity implements View.OnClickListener {
 
                 messages.add(new Messaging(c.getString(c.getColumnIndex("msg")), c.getString(c.getColumnIndex("status")),
                         c.getString(c.getColumnIndex("cdt"))));
-                try {
-                    if (Validations.hasActiveInternetConnection(Messages.this)) {
-                        Log.d("mesage", c.getString(c.getColumnIndex("msg")));
-                        Log.d("localdb", "internet connection");
-                        if (c.getString(c.getColumnIndex("status")).equals("local")) {
-                            Log.d("mystatus_local", "Locall status");
-                            sendMessage(c.getString(c.getColumnIndex("msg")), c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
-                                    c.getString(c.getColumnIndex("cdt")), true);
-                        }
+                if (Validations.hasActiveInternetConnection(Messages.this)) {
+                    Log.d("mesage", c.getString(c.getColumnIndex("msg")));
+                    Log.d("localdb", "internet connection");
+                    if (c.getString(c.getColumnIndex("status")).equals("local")) {
+                        Log.d("mystatus_local", "Locall status");
+                        sendMessage(c.getString(c.getColumnIndex("msg")), c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
+                                c.getString(c.getColumnIndex("cdt")), true);
                     }
-                } catch (IOException e) {
-                    Log.d("Exception", "local Exception");
-                    e.printStackTrace();
                 }
                 c.moveToNext();
             }

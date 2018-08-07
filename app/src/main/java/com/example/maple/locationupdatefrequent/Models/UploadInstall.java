@@ -4,15 +4,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by venky on 14-Aug-17.
  */
 
 public class UploadInstall {
     @SerializedName("Message")
-    JsonArray message_data;
+    List<DailyReportState> message_data;
 
-    public JsonArray getMessage_data() {
+    public List<DailyReportState> getMessage_data() {
         return message_data;
     }
 }

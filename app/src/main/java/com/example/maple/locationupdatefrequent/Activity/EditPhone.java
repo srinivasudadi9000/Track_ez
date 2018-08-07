@@ -66,16 +66,16 @@ public class EditPhone extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_phone);
-        view_mobile_ll = (LinearLayout) findViewById(R.id.view_mobile_ll);
-        view_mobile_edt_ll = (LinearLayout) findViewById(R.id.view_mobile_edt_ll);
-        edit_tv = (TextView) findViewById(R.id.edit_tv);
-        phone_no_radio = (RadioButton) findViewById(R.id.phone_no_radio);
+        view_mobile_ll = findViewById(R.id.view_mobile_ll);
+        view_mobile_edt_ll = findViewById(R.id.view_mobile_edt_ll);
+        edit_tv = findViewById(R.id.edit_tv);
+        phone_no_radio = findViewById(R.id.phone_no_radio);
 
-        close_img = (LinearLayout) findViewById(R.id.cancel_ll);
-        okay_app_compact = (AppCompatButton) findViewById(R.id.okay_app_compact);
-        phon_no_edtxt = (EditText) findViewById(R.id.phon_no_edtxt);
+        close_img = findViewById(R.id.cancel_ll);
+        okay_app_compact = findViewById(R.id.okay_app_compact);
+        phon_no_edtxt = findViewById(R.id.phon_no_edtxt);
         // 1st screen
-        register_app = (AppCompatButton) findViewById(R.id.register_app);
+        register_app = findViewById(R.id.register_app);
         okay_app_compact.setOnClickListener(this);
         edit_tv.setOnClickListener(this);
         register_app.setOnClickListener(this);
@@ -118,9 +118,9 @@ public class EditPhone extends Activity implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.okay_app_compact:
                 if (phon_no_edtxt.getText().toString().length() == 0) {
-                    showDialog(EditPhone.this, "Phone Number Should Not Be empty", "no");
+                    showDialog(EditPhone.this, "Please enter valid 10 digit registered mobile number", "no");
                 } else if (phon_no_edtxt.getText().toString().length() < 10) {
-                    showDialog(EditPhone.this, "Phone Number Should Be 10 Digits", "no");
+                    showDialog(EditPhone.this, "Please enter valid 10 digit registered mobile number", "no");
                 } else {
 
                     String id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -141,8 +141,8 @@ public class EditPhone extends Activity implements View.OnClickListener {
                             e.printStackTrace();
                             progress.dismiss();
                         }
-                    }else {
-                        showDialog(EditPhone.this, "Please  Check Internet Connection !!", "no");
+                    } else {
+                        showDialog(EditPhone.this, "Your device does not seem to be connected to internet, enable and retry", "no");
                     }
 
                 }
@@ -175,12 +175,12 @@ public class EditPhone extends Activity implements View.OnClickListener {
                             progress.dismiss();
                             e.printStackTrace();
                         }
-                    }else {
-                        showDialog(EditPhone.this, "Please  Check Internet Connection !!", "no");
+                    } else {
+                        showDialog(EditPhone.this, "Your device does not seem to be connected to internet, enable and retry", "no");
                     }
                     // showDialog(EditPhone.this, "Successfully ", "yes");
                 } else {
-                    showDialog(EditPhone.this, "Please  Select Phone Number", "no");
+                    showDialog(EditPhone.this, "Please  select phone number (or) Edit to enter your registered number", "no");
                 }
                 break;
             case R.id.cancel_ll:
@@ -200,16 +200,16 @@ public class EditPhone extends Activity implements View.OnClickListener {
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.custom_dialog);
 
-        TextView text = (TextView) dialog.findViewById(R.id.text_dialog);
+        TextView text = dialog.findViewById(R.id.text_dialog);
         text.setText(msg);
 
-        ImageView b = (ImageView) dialog.findViewById(R.id.b);
+        ImageView b = dialog.findViewById(R.id.b);
         if (status.equals("yes")) {
             b.setVisibility(View.VISIBLE);
         } else {
             b.setVisibility(View.GONE);
         }
-        Button dialogButton = (Button) dialog.findViewById(R.id.btn_dialog);
+        Button dialogButton = dialog.findViewById(R.id.btn_dialog);
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -234,7 +234,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
         return deviceName;
     }
 
-    public void setRegisterdetails(String DeviceNo) throws IOException {
+    public void setRegisterdetails(String DeviceNo) {
         String MobileDeviceID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         String Device_name = android.os.Build.MODEL;
         Log.d("deviceid", MobileDeviceID);
@@ -280,14 +280,14 @@ public class EditPhone extends Activity implements View.OnClickListener {
                             Log.d("If_success", jsonObject.getString("Message").toString());
                             EditPhone.this.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    showDialog(EditPhone.this, "You Are Given Correct Values", "yes");
+                                    showDialog(EditPhone.this, "Registration successfull, click OK to continue", "yes");
                                 }
                             });
                         } else {
                             Log.d("else_success", jsonObject.getString("Message").toString());
                             EditPhone.this.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    showDialog(EditPhone.this, "This Mobile Number Is Not Registered, Please Contact Admin", "no");
+                                    showDialog(EditPhone.this, "This mobile number is not registered, please contact admin", "no");
                                 }
                             });
                         }
@@ -300,14 +300,14 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 } else {
                     Log.d("result_else", response.body().toString());
                     Log.e("TAG", "response 33: " + new Gson().toJson(response.body()));
-                    showDialog(EditPhone.this, "Server Busy At This Moment Please Try It Again !!", "no");
+                    showDialog(EditPhone.this, "Server busy at this moment please try after some time or contact admin", "no");
                 }
             }
         });
     }
 
 
-    public void getuserdetails(String phonnumber) throws IOException {
+    public void getuserdetails(String phonnumber) {
 
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();

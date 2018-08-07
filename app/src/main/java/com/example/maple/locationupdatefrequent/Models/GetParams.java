@@ -10,7 +10,7 @@ public class GetParams {
     @SerializedName("Message")
     List<QuestionsParams> questionsParams;
 
-    public List<QuestionsParams> getCenters() {
+    public List<QuestionsParams> getQuestionsParams() {
         return questionsParams;
     }
 }

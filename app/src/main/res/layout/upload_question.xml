@@ -40,50 +40,75 @@
             android:src="@drawable/done" />
     </LinearLayout>
 
-    <android.support.v7.widget.AppCompatSpinner
-        android:id="@+id/category_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_below="@+id/head_ll"></android.support.v7.widget.AppCompatSpinner>
-
     <LinearLayout
-        android:id="@+id/my_ll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/image_rl"
-        android:layout_below="@+id/category_spinner"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_below="@+id/head_ll"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/border"
         android:orientation="vertical">
 
-    </LinearLayout>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/category_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
 
-    <RelativeLayout
-        android:id="@+id/image_rl"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_alignParentBottom="true">
+        </android.support.v7.widget.AppCompatSpinner>
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
 
-            <Button
-                android:id="@+id/clickimage"
+            <LinearLayout
+
+                android:id="@+id/my_ll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="clickimage" />
+                android:orientation="vertical">
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+
+    <RelativeLayout
+
+        android:id="@+id/image_rl"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp">
+
+        <LinearLayout
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/clickimage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="2dp"
+                android:text="Capture Image " />
 
             <ImageView
+                android:layout_marginBottom="2dp"
                 android:id="@+id/ivOtherImage2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_below="@id/clickimage"
                 android:layout_weight="1"
-                android:src="@drawable/car" />
+                android:src="@drawable/dummy" />
         </LinearLayout>
     </RelativeLayout>
 

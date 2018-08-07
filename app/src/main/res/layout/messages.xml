@@ -35,7 +35,7 @@
             android:layout_weight=".4"
             android:gravity="center"
             android:text="Messaging"
-            android:textAllCaps="true"
+            android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="20dp"
             android:textStyle="bold" />

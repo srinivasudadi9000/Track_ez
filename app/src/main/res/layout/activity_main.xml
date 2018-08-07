@@ -2,14 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
     <include layout="@layout/header"></include>
+
     <RelativeLayout
-        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/map"
@@ -92,12 +95,13 @@
                     android:layout_weight="1"
                     android:background="@color/colorPrimary"
                     android:gravity="end"
-                    android:text="Device Identifier :"
+                    android:text="Registered with :"
                     android:textColor="@color/white"
                     android:textSize="16dp"
                     android:textStyle="normal" />
 
                 <TextView
+                    android:id="@+id/device_id"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
@@ -106,7 +110,6 @@
                     android:background="@color/colorPrimary"
                     android:gravity="start"
                     android:text=" "
-                    android:id="@+id/device_id"
                     android:textColor="@color/white"
                     android:textSize="16dp"
                     android:textStyle="normal" />
