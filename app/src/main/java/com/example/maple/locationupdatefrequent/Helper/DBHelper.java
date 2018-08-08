@@ -13,10 +13,18 @@ public class DBHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS checktime(latitude VARCHAR,longitude VARCHAR,cdt VARCHAR,address VARCHAR,deviceid VARCHAR,deviceno VARCHAR,status VARCHAR);");
         db.execSQL("CREATE TABLE IF NOT EXISTS messages(latitude VARCHAR,longitude VARCHAR,msg VARCHAR,cdt VARCHAR,status VARCHAR);");
         db.execSQL("CREATE TABLE IF NOT EXISTS dailyreports(latitude VARCHAR,longitude VARCHAR,msg VARCHAR,cdt VARCHAR,rep_date VARCHAR,imagepath VARCHAR,status VARCHAR);");
+        //db.execSQL("CREATE TABLE IF NOT EXISTS questions(centers VARCHAR,params VARCHAR);");
     }
 
     public DBHelper() {
 
+    }
+    public void insertquestions(String centers, String params, Context context) {
+        db = context.openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
+        DBHelper.context = context;
+        db.execSQL("INSERT INTO questions VALUES('" + centers + "','" + params+ "');");
+        db.close();
+        Log.d("dbcreated_insert", "insertedsucess");
     }
 
     public void insertReport(String latitude, String longitude, String message, String cdt, String rep_date, String imagepath, String status, Context context) {

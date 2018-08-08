@@ -56,7 +56,7 @@ import okhttp3.Response;
 public class GetUserReports extends Activity implements View.OnClickListener {
     TextView counter_tv;
     RecyclerView messages_recyler;
-    ImageView msg_back_img, send_img, clear_img;
+    ImageView msg_back_img, refresh_img_user, clear_img;
     EditText et_content;
     GPSTracker gps;
     String latitude, longitude;
@@ -78,12 +78,21 @@ public class GetUserReports extends Activity implements View.OnClickListener {
             longitude = String.valueOf(gps.getLongitude());
             // Toast.makeText(getBaseContext(),latitude+" "+longitude  ,Toast.LENGTH_SHORT).show();
         }
+        refresh_img_user = findViewById(R.id.refresh_img_user);
+        refresh_img_user.setOnClickListener(this);
 
         msg_back_img = findViewById(R.id.msg_back_img);
         msg_back_img.setOnClickListener(this);
         messages_recyler = findViewById(R.id.reportsmessages_recyler);
         messages_recyler.setLayoutManager(new LinearLayoutManager(this));
 
+        SQLiteDatabase db;
+        db = openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
+
+        Cursor c = db.rawQuery("SELECT * FROM dailyreports WHERE status='local'", null);
+        if (c.getCount() > 0) {
+            refresh_img_user.setVisibility(View.VISIBLE);
+        }
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
 
         if (Validations.hasActiveInternetConnection(GetUserReports.this)) {
@@ -95,12 +104,7 @@ public class GetUserReports extends Activity implements View.OnClickListener {
             progress.show();
             getUserReports(s.getString("DeviceId", "").toString());
         } else {
-            progress = new ProgressDialog(this);
-            progress.setMessage("Fetching Admin Messages..");
-            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progress.setIndeterminate(true);
-            progress.setCancelable(false);
-            progress.show();
+
             getreports_from_local();
         }
 
@@ -110,7 +114,10 @@ public class GetUserReports extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.msg_back_img:
-                //  finish();
+                finish();
+                break;
+            case R.id.refresh_img_user:
+
                 getreports_from_local();
                 break;
         }
@@ -203,6 +210,13 @@ public class GetUserReports extends Activity implements View.OnClickListener {
     }
 
     public void getreports_from_local() {
+        progress = new ProgressDialog(this);
+        progress.setMessage("Fetching Admin Messages..");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        progress.show();
+
         Calendar cd = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         String cdt_date = sdf.format(cd.getTime());
@@ -258,6 +272,17 @@ public class GetUserReports extends Activity implements View.OnClickListener {
     }
 
     public void sendtoserver(final String MessageDescription, final String imagepath, final String Lat, final String Long, final String cdt) {
+        if (progress != null && progress.isShowing()) {
+
+        } else {
+            progress = new ProgressDialog(this);
+            progress.setMessage("Fetching Admin Messages..");
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
 
         ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
@@ -269,9 +294,9 @@ public class GetUserReports extends Activity implements View.OnClickListener {
             @Override
             public void onResponse(retrofit2.Call<UploadInstall> call, retrofit2.Response<UploadInstall> response) {
 
-                Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().getMessage_data()));
+                // Log.d("response fromserver" + response.isSuccessful(), String.valueOf(response.body().getMessage_data()));
                 if (response.isSuccessful()) {
-
+                    progress.dismiss();
                     List<DailyReportState> cd = response.body().getMessage_data();
                     if (cd.get(0).getResponse().equals("Fail")) {
                         System.out.println("Failureeeeeeeee");
@@ -281,13 +306,15 @@ public class GetUserReports extends Activity implements View.OnClickListener {
                         db.execSQL(strSQL);
                         System.out.println("sucessssssssssssss");
                     }
+                } else {
+                    progress.dismiss();
                 }
             }
 
             @Override
             public void onFailure(retrofit2.Call<UploadInstall> call, Throwable t) {
                 Log.d("response error", t.toString());
-
+                progress.dismiss();
             }
         });
     }

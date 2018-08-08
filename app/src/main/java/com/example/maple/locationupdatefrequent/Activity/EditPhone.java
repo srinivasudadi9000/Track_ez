@@ -36,6 +36,7 @@ import com.example.maple.locationupdatefrequent.Validations;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -129,18 +130,14 @@ public class EditPhone extends Activity implements View.OnClickListener {
                     Log.d("device_build", Build.DEVICE);
                     Log.d("manufacturer", android.os.Build.MANUFACTURER);
                     if (Validations.hasActiveInternetConnection(EditPhone.this)) {
-                        try {
-                            progress = new ProgressDialog(this);
-                            progress.setMessage("Authenticating User..");
-                            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                            progress.setIndeterminate(true);
-                            progress.setCancelable(false);
-                            progress.show();
-                            getuserdetails(phon_no_edtxt.getText().toString());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            progress.dismiss();
-                        }
+                        progress = new ProgressDialog(this);
+                        progress.setMessage("Authenticating User..");
+                        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        progress.setIndeterminate(true);
+                        progress.setCancelable(false);
+                        progress.show();
+                        setRegisterdetails(phon_no_edtxt.getText().toString());
+                        //getuserdetails(phon_no_edtxt.getText().toString());
                     } else {
                         showDialog(EditPhone.this, "Your device does not seem to be connected to internet, enable and retry", "no");
                     }
@@ -158,22 +155,19 @@ public class EditPhone extends Activity implements View.OnClickListener {
 
                 if (selected) {
                     if (Validations.hasActiveInternetConnection(EditPhone.this)) {
-                        try {
-                            progress = new ProgressDialog(this);
-                            progress.setMessage("Authenticating User..");
-                            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                            progress.setIndeterminate(true);
-                            progress.setCancelable(false);
-                            progress.show();
-                            Log.d("phonenuo........", phone_no_radio.getText().subSequence(2, 12).toString());
-                            if (phone_no_radio.getText().toString().length() < 10) {
-                                getuserdetails(phone_no_radio.getText().toString());
-                            } else {
-                                getuserdetails(phone_no_radio.getText().subSequence(2, 12).toString());
-                            }
-                        } catch (IOException e) {
-                            progress.dismiss();
-                            e.printStackTrace();
+                        progress = new ProgressDialog(this);
+                        progress.setMessage("Authenticating User..");
+                        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        progress.setIndeterminate(true);
+                        progress.setCancelable(false);
+                        progress.show();
+                        Log.d("phonenuo........", phone_no_radio.getText().subSequence(2, 12).toString());
+                        if (phone_no_radio.getText().toString().length() < 10) {
+                            //getuserdetails(phone_no_radio.getText().toString());
+                            setRegisterdetails(phone_no_radio.getText().toString());
+                        } else {
+                           // getuserdetails(phone_no_radio.getText().subSequence(2, 12).toString());
+                            setRegisterdetails(phone_no_radio.getText().subSequence(2, 12).toString());
                         }
                     } else {
                         showDialog(EditPhone.this, "Your device does not seem to be connected to internet, enable and retry", "no");
@@ -188,6 +182,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 view_mobile_edt_ll.startAnimation(animation2);
                 view_mobile_ll.setVisibility(View.VISIBLE);
                 view_mobile_edt_ll.setVisibility(View.GONE);
+                phon_no_edtxt.setText("");
                 Toast.makeText(getBaseContext(), "Exit Button", Toast.LENGTH_SHORT).show();
                 //finish();
                 break;
@@ -235,7 +230,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
     }
 
     public void setRegisterdetails(String DeviceNo) {
-        String MobileDeviceID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        final String MobileDeviceID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         String Device_name = android.os.Build.MODEL;
         Log.d("deviceid", MobileDeviceID);
         Log.d("device name", getDeviceName());
@@ -262,36 +257,76 @@ public class EditPhone extends Activity implements View.OnClickListener {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                progress.dismiss();
                 // Log.d("result", e.getMessage().toString());
                 // e.printStackTrace();
                 Log.d("result", "service no runnning...............");
+                showDialog(EditPhone.this,"Internal server occured please try again" , "no");
             }
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-
+                progress.dismiss();
                 if (response.isSuccessful()) {
                     Log.d("result_success", response.body().toString());
 
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().string());
-                        Log.d("success", jsonObject.getString("Message").toString());
-                        if (jsonObject.getString("Message").toString().equals("SUCCESS")) {
-                            Log.d("If_success", jsonObject.getString("Message").toString());
-                            EditPhone.this.runOnUiThread(new Runnable() {
-                                public void run() {
-                                    showDialog(EditPhone.this, "Registration successfull, click OK to continue", "yes");
-                                }
-                            });
-                        } else {
-                            Log.d("else_success", jsonObject.getString("Message").toString());
-                            EditPhone.this.runOnUiThread(new Runnable() {
-                                public void run() {
-                                    showDialog(EditPhone.this, "This mobile number is not registered, please contact admin", "no");
-                                }
-                            });
-                        }
 
+                        JSONArray jsonArray = jsonObject.getJSONArray("Message");
+                        Log.d("success", jsonArray.toString());
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            final JSONObject values = jsonArray.getJSONObject(i);
+                            if (values.getString("Response").equals("Success")) {
+                                SharedPreferences.Editor s = getSharedPreferences("Userdetails", MODE_PRIVATE).edit();
+                                s.putString("DeviceId", values.getString("DeviceID"));
+                                s.putString("deviceno", values.getString("DeviceNo"));
+                                s.putString("MobileDeviceID", MobileDeviceID);
+                                s.putString("personname", values.getString("PersonName"));
+                                s.putString("CategoryID", values.getString("CategoryID"));
+                                s.putString("category", values.getString("Category"));
+                                s.putString("RefreshTimeInterval", values.getString("RefreshTimeInterval"));
+                                s.commit();
+                                JsonParser jsonParser = new JsonParser();
+                           //     JsonArray arrayFromString = jsonParser.parse(String.valueOf(values.getJSONArray("Centers"))).getAsJsonArray();
+                               // JSONArray jsonArray2 = values.getJSONArray("Centers");
+                                // Convert JSON Array String into JSON Array
+                                String jsonArrayString =   values.getString("Centers").toString();
+                                JsonArray arrayFromString = jsonParser.parse(jsonArrayString).getAsJsonArray();
+                                System.out.println(arrayFromString.toString());
+                                JSONArray jsonObject1 = new JSONArray(arrayFromString.toString());
+                                for (int j=0;j<jsonObject1.length();j++){
+                                    JSONObject jsonObject2 = jsonObject1.getJSONObject(j);
+                                    System.out.println("Good DADTi................."+jsonObject2.getString("CenterNumber"));
+                                }
+                                System.out.println("Jsonobject1 "+arrayFromString.toString());
+                                String ReportParameters =   values.getString("ReportParameters").toString();
+                                JsonArray ReportParametersa = jsonParser.parse(ReportParameters).getAsJsonArray();
+                                System.out.println(ReportParametersa.toString());
+
+                                SharedPreferences.Editor editor = getSharedPreferences("questions",MODE_PRIVATE).edit();
+                                editor.putString("Centers",arrayFromString.toString());
+                                editor.putString("ReportParameters",ReportParametersa.toString());
+                                editor.commit();
+                                EditPhone.this.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        showDialog(EditPhone.this, "Registration successfull, click OK to continue", "yes");
+                                    }
+                                });
+
+                            }else {
+                                EditPhone.this.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        try {
+                                            showDialog(EditPhone.this,values.getString("Message") , "no");
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                            }
+
+                        }
 
                     } catch (JSONException e) {
                         e.printStackTrace();

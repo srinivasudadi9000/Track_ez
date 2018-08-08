@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.SystemClock;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -132,8 +133,17 @@ public class GetUserReportsAdapter extends RecyclerView.Adapter<GetUserReportsAd
             holder.statsu_img.setBackground(context.getResources().getDrawable(R.drawable.imgnoavailable));
 
         } else {
-            ImageLoader.getInstance()
-                    .displayImage("http://125.62.194.181/tracker/" + reports.get(position).getPhoto(), holder.statsu_img, options);
+            Bitmap bmImage = null;
+            if (reports.get(position).getPhoto().toString().contains("storage")) {
+                bmImage = BitmapFactory.decodeFile(reports.get(position).getPhoto().toString(), null);
+                holder.statsu_img.setImageBitmap(bmImage);
+            } else {
+                // holder.recce_img.setImageResource(R.drawable.dummy);
+                ImageLoader.getInstance()
+                        .displayImage("http://125.62.194.181/tracker/" + reports.get(position).getPhoto(), holder.statsu_img, options);
+            }
+
+
         }
 
     }
