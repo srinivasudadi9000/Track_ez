@@ -94,7 +94,11 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
         }else {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
+                if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
+
+                }else {
+                    alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
+                }
                 // only for gingerbread and newer versions
             }
         }

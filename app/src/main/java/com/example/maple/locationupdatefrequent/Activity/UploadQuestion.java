@@ -334,7 +334,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                     }
                 }
                 SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyy HH:mm:ss");
                 String millisInString = dateFormat.format(new Date());
                 if (Validations.hasActiveInternetConnection(UploadQuestion.this)) {
                     updateInstall("VVD@14", s.getString("DeviceId", ""),
@@ -523,7 +523,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 progress.dismiss();
                 Log.d("response error", t.toString());
                 DBHelper dbHelper = new DBHelper(UploadQuestion.this);
-                dbHelper.insertReport(Lat, Long, MessageDescription.replace("'", ""), ReportedDateTime, "offline", imagepath, "local",
+                dbHelper.insertReport(Lat, Long, MessageDescription.replace("'", ""), ReportedDateTime, ReportedDateTime, imagepath, "local",
                         UploadQuestion.this);
             }
         });
@@ -582,7 +582,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         System.out.println("Camera request code......................" + resultCode);
-        if (requestCode == -1) {
+
             try {
                 BitmapFactory.Options opt = new BitmapFactory.Options();
                 opt.inSampleSize = 8;
@@ -594,7 +594,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
             } catch (Exception e) {
                 Log.e("msg", e.getMessage());
             }
-        }
+
 
     }
 

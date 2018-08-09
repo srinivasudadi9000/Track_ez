@@ -3,6 +3,7 @@ package com.example.maple.locationupdatefrequent.Activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -95,7 +96,7 @@ public class GetUserReports extends Activity implements View.OnClickListener {
         }
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
 
-        if (Validations.hasActiveInternetConnection(GetUserReports.this)) {
+      /*  if (Validations.hasActiveInternetConnection(GetUserReports.this)) {
             progress = new ProgressDialog(this);
             progress.setMessage("Fetching Admin Messages..");
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -106,8 +107,8 @@ public class GetUserReports extends Activity implements View.OnClickListener {
         } else {
 
             getreports_from_local();
-        }
-
+        }*/
+        getreports_from_local();
     }
 
     @Override
@@ -118,7 +119,9 @@ public class GetUserReports extends Activity implements View.OnClickListener {
                 break;
             case R.id.refresh_img_user:
 
-                getreports_from_local();
+                Intent getuser = new Intent(GetUserReports.this,GetUserReports.class);
+                startActivity(getuser);
+                finish();
                 break;
         }
     }
@@ -211,7 +214,7 @@ public class GetUserReports extends Activity implements View.OnClickListener {
 
     public void getreports_from_local() {
         progress = new ProgressDialog(this);
-        progress.setMessage("Fetching Admin Messages..");
+        progress.setMessage("Sending offline data to server..");
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progress.setIndeterminate(true);
         progress.setCancelable(false);
@@ -232,25 +235,42 @@ public class GetUserReports extends Activity implements View.OnClickListener {
         Log.d("displaycount", ccc);
         if (c.moveToFirst()) {
             while (!c.isAfterLast()) {
-                reports.add(new Reports(c.getString(c.getColumnIndex("msg")), c.getString(c.getColumnIndex("imagepath")),
-                        c.getString(c.getColumnIndex("rep_date")), c.getString(c.getColumnIndex("status"))));
 
                 if (Validations.hasActiveInternetConnection(GetUserReports.this)) {
                     if (c.getString(c.getColumnIndex("status")).equals("local")) {
                         sendtoserver(c.getString(c.getColumnIndex("msg")), c.getString(c.getColumnIndex("imagepath")),
                                 c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
-                                c.getString(c.getColumnIndex("cdt")));
+                                c.getString(c.getColumnIndex("rep_date")));
                     }
+                } else {
+                    reports.add(new Reports(c.getString(c.getColumnIndex("msg")), c.getString(c.getColumnIndex("imagepath")),
+                            c.getString(c.getColumnIndex("rep_date")), c.getString(c.getColumnIndex("status"))));
                 }
                 c.moveToNext();
             }
         }
         db.close();
-        getUserReportsAdapter = new GetUserReportsAdapter(reports, R.layout.userreports_single, getApplicationContext());
-        messages_recyler.setAdapter(getUserReportsAdapter);
-        getUserReportsAdapter.notifyDataSetChanged();
+        if (Validations.hasActiveInternetConnection(GetUserReports.this)) {
+            SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
+            if (progress != null && progress.isShowing()) {
+
+            } else {
+                progress = new ProgressDialog(this);
+                progress.setMessage("Fetching Admin Messages..");
+                progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progress.setIndeterminate(true);
+                progress.setCancelable(false);
+                progress.show();
+            }
+            getUserReports(s.getString("DeviceId", "").toString());
+
+        } else {
+            getUserReportsAdapter = new GetUserReportsAdapter(reports, R.layout.userreports_single, getApplicationContext());
+            messages_recyler.setAdapter(getUserReportsAdapter);
+            getUserReportsAdapter.notifyDataSetChanged();
+            progress.dismiss();
+        }
         //finish();
-        progress.dismiss();
     }
 
     private String getStringImage(String path) {
@@ -276,7 +296,7 @@ public class GetUserReports extends Activity implements View.OnClickListener {
 
         } else {
             progress = new ProgressDialog(this);
-            progress.setMessage("Fetching Admin Messages..");
+            progress.setMessage("Sending offine data to server..");
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progress.setIndeterminate(true);
             progress.setCancelable(false);
