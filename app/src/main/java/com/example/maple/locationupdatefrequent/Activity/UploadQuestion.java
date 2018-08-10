@@ -98,7 +98,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     TextView[] tvArray;
     EditText[] etArray;
     int len;
-    String formattedMessage = "", clicked = "not", CenterID = "not",CenterName="";
+    String formattedMessage = "", clicked = "not", CenterID = "not", CenterName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,25 +137,25 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
             progress.show();
             GetCentersandReportParams();
         } else {
-
             getmylocal();
         }
-
+        centerDetails.add(new CenterDetails("--select--", "0"));
+        center.add("--select--");
         category_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-               // CenterID = adapterView.getSelectedItem().toString();
+                // CenterID = adapterView.getSelectedItem().toString();
                 CenterName = centerDetails.get(i).getCenterNumber().toString();
-                CenterID =  centerDetails.get(i).getCenterid().toString();
-                Toast.makeText(getBaseContext(), centerDetails.get(i).getCenterid().toString(), Toast.LENGTH_SHORT).show();
+                CenterID = centerDetails.get(i).getCenterid().toString();
+               // Toast.makeText(getBaseContext(), centerDetails.get(i).getCenterid().toString(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-               // CenterID = adapterView.getSelectedItem().toString();
+                // CenterID = adapterView.getSelectedItem().toString();
                 CenterName = centerDetails.get(adapterView.getId()).getCenterNumber().toString();
-                CenterID =  centerDetails.get(adapterView.getId()).getCenterid().toString();
-                Toast.makeText(getBaseContext(), CenterID.toString() + adapterView.getId(), Toast.LENGTH_SHORT).show();
+                CenterID = centerDetails.get(adapterView.getId()).getCenterid().toString();
+              //  Toast.makeText(getBaseContext(), CenterID.toString() + adapterView.getId(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -293,8 +293,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
 
             try {
                 JSONArray cd = new JSONArray(editor.getString("Centers", ""));
-                centerDetails.add(new CenterDetails("--select--", "0"));
-                center.add("--select--");
+
                 System.out.println("sizeof cener" + cd.toString());
                 for (int i = 0; i < cd.length(); i++) {
                     JSONObject jsonObject2 = cd.getJSONObject(i);
@@ -324,52 +323,55 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 finish();
                 break;
             case R.id.done_img:
-                formattedMessage = "Center Name"+"<br/>Obs."+CenterName+"$"+CenterID+"<br/><br/>";
-                for (int i = 0; i < len; i++) {
-                    formattedMessage = formattedMessage + tvArray[i].getText().toString() + "<br/>Obs. " + etArray[i].getText().toString();
-                    if (i != len - 1)
-                        formattedMessage = formattedMessage + "<br/><br/>";
-                }
+                if (CenterID.equals("0")) {
+                    showDialog(UploadQuestion.this, "Please select center", "no");
+                } else {
+                    formattedMessage = "Center Name" + "<br/>Obs." + CenterName + "$" + CenterID + "<br/><br/>";
+                    for (int i = 0; i < len; i++) {
+                        formattedMessage = formattedMessage + tvArray[i].getText().toString() + "<br/>Obs. " + etArray[i].getText().toString();
+                        if (i != len - 1)
+                            formattedMessage = formattedMessage + "<br/><br/>";
+                    }
 
-                if (clicked.equals("not")) {
-                    String root = Environment.getExternalStorageDirectory().toString();
-                    File myDir = new File(root + "/RecceImages/");
-                    myDir.mkdirs();
-                    otherImagefile2 = new File(myDir,
-                            String.valueOf(System.currentTimeMillis()) + ".jpg");
-                    FileOutputStream out = null;
-                    try {
-                        out = new FileOutputStream(otherImagefile2);
-                        Bitmap bmp = BitmapFactory.decodeResource(UploadQuestion.this.getResources(), R.drawable.imgnoavailable);
-                        bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                        // PNG is a lossless format, the compression factor (100) is ignored
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
+                    if (clicked.equals("not")) {
+                        String root = Environment.getExternalStorageDirectory().toString();
+                        File myDir = new File(root + "/RecceImages/");
+                        myDir.mkdirs();
+                        otherImagefile2 = new File(myDir,
+                                String.valueOf(System.currentTimeMillis()) + ".jpg");
+                        FileOutputStream out = null;
                         try {
-                            if (out != null) {
-                                out.close();
-                            }
-                        } catch (IOException e) {
+                            out = new FileOutputStream(otherImagefile2);
+                            Bitmap bmp = BitmapFactory.decodeResource(UploadQuestion.this.getResources(), R.drawable.imgnoavailable);
+                            bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                            // PNG is a lossless format, the compression factor (100) is ignored
+                        } catch (Exception e) {
                             e.printStackTrace();
+                        } finally {
+                            try {
+                                if (out != null) {
+                                    out.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
-                }
-                SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyy HH:mm:ss");
-                String millisInString = dateFormat.format(new Date());
-                if (Validations.hasActiveInternetConnection(UploadQuestion.this)) {
-                    updateInstall("VVD@14", s.getString("DeviceId", ""),
-                            formattedMessage, latitude, longitude, s.getString("PersonName", ""),
-                            millisInString, "1", s.getString("MobileDeviceID", ""), otherImagefile2.getAbsolutePath());
+                    SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyy HH:mm:ss");
+                    String millisInString = dateFormat.format(new Date());
+                    if (Validations.hasActiveInternetConnection(UploadQuestion.this)) {
+                        updateInstall("VVD@14", s.getString("DeviceId", ""),
+                                formattedMessage, latitude, longitude, s.getString("PersonName", ""),
+                                millisInString, "1", s.getString("MobileDeviceID", ""), otherImagefile2.getAbsolutePath());
 
-                } else {
-                    DBHelper dbHelper = new DBHelper(UploadQuestion.this);
-                    dbHelper.insertReport(latitude, longitude, formattedMessage.replace("'", ""), millisInString, millisInString, otherImagefile2.getAbsolutePath(), "local",
-                            UploadQuestion.this);
-                    showDialog(UploadQuestion.this, "Sent daily report inprogress thankyou", "yes");
+                    } else {
+                        DBHelper dbHelper = new DBHelper(UploadQuestion.this);
+                        dbHelper.insertReport(latitude, longitude, formattedMessage.replace("'", ""), millisInString, millisInString, otherImagefile2.getAbsolutePath(), "local",
+                                UploadQuestion.this);
+                        showDialog(UploadQuestion.this, "Report saved to offline, will synch automatically when internet is available", "yes");
+                    }
                 }
-
                 break;
             case R.id.ivOtherImage2:
                 clicked = "clicked";
@@ -383,8 +385,6 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
 
                 iv_url2 = FileProvider.getUriForFile(getApplicationContext(),
                         getApplication().getPackageName() + ".provider", otherImagefile2);
-
-
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, iv_url2);
                 startActivityForResult(intent, O_IMAGE2);
                 break;
@@ -527,9 +527,9 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                         dbHelper.insertReport(Lat, Long, MessageDescription.replace("'", ""), ReportedDateTime, ReportedDateTime, imagepath, "local",
                                 UploadQuestion.this);
                         System.out.println("Failureeeeeeeee");
-                        showDialog(UploadQuestion.this, "Unable sent daily report ,internal error occured please contact admin (or ) please try again", "no");
+                        showDialog(UploadQuestion.this, "Unable to send daily report, please try again", "no");
                     } else {
-                        showDialog(UploadQuestion.this, "Successfully sent daily report thankyou", "yes");
+                        showDialog(UploadQuestion.this, "Report sent successfully", "yes");
                         System.out.println("sucessssssssssssss");
                     }
                 } else {
@@ -570,11 +570,15 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (status.equals("no")) {
+                    dialog.dismiss();
+                } else {
+                    dialog.dismiss();
+                    Intent upload = new Intent(UploadQuestion.this, UploadQuestion.class);
+                    startActivity(upload);
+                    finish();
 
-                dialog.dismiss();
-                Intent upload = new Intent(UploadQuestion.this, UploadQuestion.class);
-                startActivity(upload);
-                finish();
+                }
             }
         });
         dialog.show();

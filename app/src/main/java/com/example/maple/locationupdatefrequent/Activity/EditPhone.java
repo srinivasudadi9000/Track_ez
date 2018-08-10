@@ -106,7 +106,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 selected = true;
-                Toast.makeText(getBaseContext(), compoundButton.getText().toString(), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getBaseContext(), compoundButton.getText().toString(), Toast.LENGTH_SHORT).show();
             }
         });
         Log.d("editphone", mPhoneNumber);
@@ -174,7 +174,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
                     }
                     // showDialog(EditPhone.this, "Successfully ", "yes");
                 } else {
-                    showDialog(EditPhone.this, "Please  select phone number (or) Edit to enter your registered number", "no");
+                    showDialog(EditPhone.this, "Please select phone number (or) Edit to enter your registered number", "no");
                 }
                 break;
             case R.id.cancel_ll:
@@ -183,7 +183,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 view_mobile_ll.setVisibility(View.VISIBLE);
                 view_mobile_edt_ll.setVisibility(View.GONE);
                 phon_no_edtxt.setText("");
-                Toast.makeText(getBaseContext(), "Exit Button", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getBaseContext(), "Exit Button", Toast.LENGTH_SHORT).show();
                 //finish();
                 break;
         }

@@ -48,6 +48,7 @@ public class AdminMessagingAdapter extends RecyclerView.Adapter<AdminMessagingAd
     @Override
     public void onBindViewHolder(final CheckIn holder, int position) {
         holder.message_tv.setText(admins.get(position).getMessage());
+        holder.message_tv.setSelected(true);
 
         DateFormat originalFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.ENGLISH);
         DateFormat targetFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss a ");
@@ -61,16 +62,16 @@ public class AdminMessagingAdapter extends RecyclerView.Adapter<AdminMessagingAd
             e.printStackTrace();
         }
 
-        if (holder.message_tv.getText().length()>25){
+        if (holder.message_tv.getText().length() > 25) {
             holder.adminstatsu_txt.setVisibility(View.VISIBLE);
         }
         holder.adminstatsu_txt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent qd = new Intent(context, QD.class);
-                qd.putExtra("question","Admin Message ??");
-                qd.putExtra("answer",holder.message_tv.getText().toString()+"\n"+holder.status_tv.getText().toString());
-                qd.putExtra("state","message");
+                qd.putExtra("question", "  Message ");
+                qd.putExtra("answer", holder.message_tv.getText().toString() + "\n" + holder.status_tv.getText().toString());
+                qd.putExtra("state", "message");
                 context.startActivity(qd);
             }
         });

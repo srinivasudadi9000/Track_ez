@@ -50,7 +50,7 @@ public class SplashScreen extends Activity {
                     Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET, Manifest.permission.WRITE_EXTERNAL_STORAGE
                     , Manifest.permission.READ_PHONE_STATE}, 0);
         } else {
-            Toast.makeText(getBaseContext(), "All permissions granted.", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getBaseContext(), "All permissions granted.", Toast.LENGTH_SHORT).show();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {

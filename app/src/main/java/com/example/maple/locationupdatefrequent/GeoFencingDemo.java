@@ -539,7 +539,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                         //Toast.makeText(getBaseContext(),,Toast.LENGTH_SHORT).show();
                     } catch (IntentSender.SendIntentException sendEx) {
                         // Ignore the error.
-                        Toast.makeText(getBaseContext(), "cancel the dialog", Toast.LENGTH_SHORT).show();
+                      ///  Toast.makeText(getBaseContext(), "cancel the dialog", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -551,7 +551,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         super.onActivityResult(requestCode, resultCode, data);
         String xx = String.valueOf(requestCode);
         String yy = String.valueOf(resultCode);
-        Toast.makeText(getBaseContext(), "REquest code :" + xx + "  request res : " + yy, Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(getBaseContext(), "REquest code :" + xx + "  request res : " + yy, Toast.LENGTH_SHORT).show();
         if (resultCode == 0) {
             createLocationRequest();
         }
@@ -919,7 +919,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         permissionHelper.request(new PermissionHelper.PermissionCallback() {
             @Override
             public void onPermissionGranted() {
-                Toast.makeText(act, "granted", Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(act, "granted", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onPermissionGranted() called");
 
                 buildGoogleApiClient();
@@ -937,7 +937,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
             @Override
             public void onPermissionDenied() {
-                Toast.makeText(GeoFencingDemo.this, "permission denied", Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(GeoFencingDemo.this, "permission denied", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onPermissionDenied() called");
             }
 
@@ -1000,7 +1000,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                     if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
                         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
                     } else if (android.os.Build.MANUFACTURER.equals("vivo")) {
-                        Toast.makeText(getBaseContext(), "vivo mobile", Toast.LENGTH_SHORT).show();
+                      //  Toast.makeText(getBaseContext(), "vivo mobile", Toast.LENGTH_SHORT).show();
                         //  alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
                         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 30000, pendingIntent);
                     } else {

@@ -113,7 +113,7 @@ public class Messages extends Activity implements View.OnClickListener {
                 Log.d("longitude", longitude);
 
                 if (et_content.getText().toString().length() < 15) {
-                    showDialog(Messages.this, "Message Should Be Minimum 15 Characters", "no");
+                    showDialog(Messages.this, "Message should be minimum 15 characters", "no");
                 } else {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                     String millisInString = dateFormat.format(new Date());
@@ -128,7 +128,7 @@ public class Messages extends Activity implements View.OnClickListener {
                     } else {
                         DBHelper dbHelper = new DBHelper(Messages.this);
                         dbHelper.insertMessage(latitude, longitude, et_content.getText().toString(), millisInString, "local", Messages.this);
-                        showDialog(Messages.this, "Message Sending In Progress..", "yes");
+                        showDialog(Messages.this, "Report saved to offline, will synch automatically when internet is available", "yes");
                     }
                 }
 
@@ -187,7 +187,7 @@ public class Messages extends Activity implements View.OnClickListener {
                     Log.d("result", "service no runnning...............");
                     DBHelper dbHelper = new DBHelper(Messages.this);
                     dbHelper.insertMessage(latitude, longitude, et_content.getText().toString(), datetime, "local", Messages.this);
-                    showDialog(Messages.this, "Message Sending In Progress..", "yes");
+                    showDialog(Messages.this, "Report saved to offline, will synch automatically when internet is available", "yes");
                 }
             }
 

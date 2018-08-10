@@ -1,6 +1,7 @@
 package com.example.maple.locationupdatefrequent.Activity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ import com.example.maple.locationupdatefrequent.Adapters.CheckinAdapter;
 import com.example.maple.locationupdatefrequent.Adapters.GetUserReportsAdapter;
 import com.example.maple.locationupdatefrequent.Attendance_lo;
 import com.example.maple.locationupdatefrequent.GPSTracker;
+import com.example.maple.locationupdatefrequent.GeoFencingDemo;
 import com.example.maple.locationupdatefrequent.Helper.DBHelper;
 import com.example.maple.locationupdatefrequent.Models.Admin;
 import com.example.maple.locationupdatefrequent.Models.Checkins;
@@ -125,6 +129,36 @@ public class GetUserReports extends Activity implements View.OnClickListener {
                 break;
         }
     }
+    public void showDialog(Activity activity, String msg, final String status) {
+        final Dialog dialog = new Dialog(activity, R.style.PauseDialog);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.custom_dialog);
+
+        TextView text = dialog.findViewById(R.id.text_dialog);
+        text.setText(msg);
+
+        ImageView b = dialog.findViewById(R.id.b);
+        if (status.equals("yes")) {
+            b.setVisibility(View.VISIBLE);
+        } else {
+            b.setVisibility(View.GONE);
+        }
+        Button dialogButton = dialog.findViewById(R.id.btn_dialog);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (status.equals("yes")) {
+                    dialog.dismiss();
+
+                } else {
+                    dialog.dismiss();
+                }
+            }
+        });
+        dialog.show();
+
+    }
 
     public void getUserReports(String deviceid) {
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
@@ -166,35 +200,45 @@ public class GetUserReports extends Activity implements View.OnClickListener {
                         JSONObject jsonObject = new JSONObject(response.body().string());
                         if (jsonObject.get("Message") instanceof JSONArray) {
                             JSONArray jsonArray = jsonObject.getJSONArray("Message");
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject values = jsonArray.getJSONObject(i);
-                                Log.d("hello", values.getString("messagedescription"));
-                                Log.d("hello", values.getString("messagedatetime"));
-                                SQLiteDatabase db = openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
-                                Cursor c = db.rawQuery("SELECT * FROM dailyreports WHERE rep_date='" + values.getString("messagedatetime") + "'", null);
-                                if (c.moveToFirst()) {
-                                    Log.d("UPdate", "updating......");
-                                    String strSQL = "UPDATE dailyreports SET msg = '" + values.getString("messagedescription") + "',rep_date='" +
-                                            values.getString("messagedatetime") + "',imagepath='" + values.getString("Photo") +
-                                            "' WHERE rep_date = '" + values.getString("messagedatetime") + "'";
-                                    db.execSQL(strSQL);
-                                } else {
-                                    DBHelper dbHelper = new DBHelper();
-                                    dbHelper.insertReport("", "", values.getString("messagedescription"), "",
-                                            values.getString("messagedatetime"), values.getString("Photo"), "online", GetUserReports.this);
-                                    Log.d("INserting", "INserting......");
+                            if (jsonArray.length()>0){
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject values = jsonArray.getJSONObject(i);
+                                    Log.d("hello", values.getString("messagedescription"));
+                                    Log.d("hello", values.getString("messagedatetime"));
+                                    SQLiteDatabase db = openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
+                                    Cursor c = db.rawQuery("SELECT * FROM dailyreports WHERE rep_date='" + values.getString("messagedatetime") + "'", null);
+                                    if (c.moveToFirst()) {
+                                        Log.d("UPdate", "updating......");
+                                        String strSQL = "UPDATE dailyreports SET msg = '" + values.getString("messagedescription") + "',rep_date='" +
+                                                values.getString("messagedatetime") + "',imagepath='" + values.getString("Photo") +
+                                                "' WHERE rep_date = '" + values.getString("messagedatetime") + "'";
+                                        db.execSQL(strSQL);
+                                    } else {
+                                        DBHelper dbHelper = new DBHelper();
+                                        dbHelper.insertReport("", "", values.getString("messagedescription"), "",
+                                                values.getString("messagedatetime"), values.getString("Photo"), "online", GetUserReports.this);
+                                        Log.d("INserting", "INserting......");
 
+                                    }
+                                    reports.add(new Reports(values.getString("messagedescription"), values.getString("Photo"),
+                                            values.getString("messagedatetime"), ""));
                                 }
-                                reports.add(new Reports(values.getString("messagedescription"), values.getString("Photo"),
-                                        values.getString("messagedatetime"), ""));
+                                GetUserReports.this.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        getUserReportsAdapter = new GetUserReportsAdapter(reports, R.layout.userreports_single, getApplicationContext());
+                                        messages_recyler.setAdapter(getUserReportsAdapter);
+                                        getUserReportsAdapter.notifyDataSetChanged();
+                                    }
+                                });
+
+                            }else {
+
+                                GetUserReports.this.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        showDialog(GetUserReports.this,"No reports to display","no");
+                                    }
+                                });
                             }
-                            GetUserReports.this.runOnUiThread(new Runnable() {
-                                public void run() {
-                                    getUserReportsAdapter = new GetUserReportsAdapter(reports, R.layout.userreports_single, getApplicationContext());
-                                    messages_recyler.setAdapter(getUserReportsAdapter);
-                                    getUserReportsAdapter.notifyDataSetChanged();
-                                }
-                            });
 
                         } else {
                             String jsobje = jsonObject.getString("Message");
@@ -265,10 +309,18 @@ public class GetUserReports extends Activity implements View.OnClickListener {
             getUserReports(s.getString("DeviceId", "").toString());
 
         } else {
-            getUserReportsAdapter = new GetUserReportsAdapter(reports, R.layout.userreports_single, getApplicationContext());
-            messages_recyler.setAdapter(getUserReportsAdapter);
-            getUserReportsAdapter.notifyDataSetChanged();
-            progress.dismiss();
+            if (reports.size()>0){
+                getUserReportsAdapter = new GetUserReportsAdapter(reports, R.layout.userreports_single, getApplicationContext());
+                messages_recyler.setAdapter(getUserReportsAdapter);
+                getUserReportsAdapter.notifyDataSetChanged();
+                progress.dismiss();
+            }else {
+                GetUserReports.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        showDialog(GetUserReports.this,"No reports to display","no");
+                    }
+                });
+            }
         }
         //finish();
     }

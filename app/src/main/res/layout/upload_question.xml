@@ -52,14 +52,29 @@
         android:background="@drawable/border"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatSpinner
-            android:id="@+id/category_spinner"
+        <LinearLayout
+            android:weightSum="1"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp">
+            android:layout_height="45dp">
+             <TextView
+                 android:layout_marginLeft="10dp"
+                 android:layout_weight=".8"
+                 android:gravity="center"
+                 android:text="Center "
+                  android:textAllCaps="true"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent" />
+            <android.support.v7.widget.AppCompatSpinner
+                android:layout_weight=".2"
+                android:id="@+id/category_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp">
 
-        </android.support.v7.widget.AppCompatSpinner>
+            </android.support.v7.widget.AppCompatSpinner>
+        </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"

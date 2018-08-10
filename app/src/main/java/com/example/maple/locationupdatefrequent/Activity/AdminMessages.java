@@ -83,17 +83,13 @@ public class AdminMessages extends Activity implements View.OnClickListener {
         messages_recyler.setLayoutManager(new LinearLayoutManager(this));
 
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
-        try {
-            progress = new ProgressDialog(this);
-            progress.setMessage("Fetching Admin Messages..");
-            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progress.setIndeterminate(true);
-            progress.setCancelable(false);
-            progress.show();
-            getAdminmessages(s.getString("DeviceId", "").toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        progress = new ProgressDialog(this);
+        progress.setMessage("Fetching Admin Messages..");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        progress.show();
+        getAdminmessages(s.getString("DeviceId", "").toString());
 
     }
 
@@ -168,21 +164,29 @@ public class AdminMessages extends Activity implements View.OnClickListener {
                 if (jsonObject.getString("Response").equals("Success")) {
                     if (jsonObject.get("Message") instanceof JSONArray) {
                         JSONArray jsonArray = jsonObject.getJSONArray("Message");
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject values = jsonArray.getJSONObject(i);
-                            Log.d("hello", values.getString("Message"));
-                            Log.d("hello", values.getString("MessageDateTime"));
+                        if (jsonArray.length() > 0) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject values = jsonArray.getJSONObject(i);
+                                Log.d("hello", values.getString("Message"));
+                                Log.d("hello", values.getString("MessageDateTime"));
 
-                            admins.add(new Admin(values.getString("Message"), values.getInt("MessageID"),
-                                    values.getString("MessageDateTime"), values.getInt("ReadStatus")));
-                        }
-                        AdminMessages.this.runOnUiThread(new Runnable() {
-                            public void run() {
-                                adminMessagingAdapter = new AdminMessagingAdapter(admins, R.layout.adminmessage_single, getApplicationContext());
-                                messages_recyler.setAdapter(adminMessagingAdapter);
-                                adminMessagingAdapter.notifyDataSetChanged();
+                                admins.add(new Admin(values.getString("Message"), values.getInt("MessageID"),
+                                        values.getString("MessageDateTime"), values.getInt("ReadStatus")));
                             }
-                        });
+                            AdminMessages.this.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    adminMessagingAdapter = new AdminMessagingAdapter(admins, R.layout.adminmessage_single, getApplicationContext());
+                                    messages_recyler.setAdapter(adminMessagingAdapter);
+                                    adminMessagingAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        } else {
+                            AdminMessages.this.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    showDialog(AdminMessages.this, "No messages to display", "no");
+                                }
+                            });
+                        }
 
                     } else {
                         String jsobje = jsonObject.getString("Message");
@@ -190,7 +194,11 @@ public class AdminMessages extends Activity implements View.OnClickListener {
                     }
                 }
             } else {
-                showDialog(AdminMessages.this,"Don't have any admin messages","no");
+                AdminMessages.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        showDialog(AdminMessages.this, "No messages to display", "no");
+                    }
+                });
             }
 
 
