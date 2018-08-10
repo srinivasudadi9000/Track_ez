@@ -70,18 +70,37 @@ public class GetUserReportsAdapter extends RecyclerView.Adapter<GetUserReportsAd
         String original = reports.get(position).getMessagedescription();
         String[] lines = original.split("\\r?<br/><br/>");
         System.out.println("lines count " + lines.length);
+        int index = 0;
         for (String line : lines) {
             System.out.println(line);
             String[] sublines = line.split("\\r?<br/>");
             if (sublines.length > 1) {
-                holder.message_tv.setText(sublines[0]);
-                holder.answer_tv.setText(sublines[1]);
-                reports.get(position).setType("yes");
+              //  if (index == 0 && position == 0) {
+                    String str1 = new String(sublines[1]);
+                    int subls = str1.indexOf('$');
+                    System.out.println("Sublines " + subls + "values" + str1 + " lenght  " + str1.length());
+                    holder.message_tv.setText(sublines[0]);
+                    if (subls>=1){
+                        holder.answer_tv.setText(str1.substring(0,subls));
+                    }else {
+                        holder.answer_tv.setText(str1);
+                    }
+                    reports.get(position).setType("yes");
+
+               /* } else {
+                    holder.message_tv.setText(sublines[0]);
+                    holder.answer_tv.setText(sublines[1]);
+                    reports.get(position).setType("yes");
+
+                }
+                index++;*/
             } else {
                 holder.message_tv.setText(sublines[0]);
                 holder.answer_tv.setText("No Answer");
                 reports.get(position).setType("no");
             }
+
+            index++;
             break;
         }
 /*
@@ -136,13 +155,13 @@ public class GetUserReportsAdapter extends RecyclerView.Adapter<GetUserReportsAd
             Bitmap bmImage = null;
             if (reports.get(position).getPhoto().toString().contains("storage")) {
                 bmImage = BitmapFactory.decodeFile(reports.get(position).getPhoto().toString(), null);
+                holder.statsu_img.setScaleType(ImageView.ScaleType.FIT_XY);
                 holder.statsu_img.setImageBitmap(bmImage);
             } else {
                 // holder.recce_img.setImageResource(R.drawable.dummy);
                 ImageLoader.getInstance()
                         .displayImage("http://125.62.194.181/tracker/" + reports.get(position).getPhoto(), holder.statsu_img, options);
             }
-
 
         }
 

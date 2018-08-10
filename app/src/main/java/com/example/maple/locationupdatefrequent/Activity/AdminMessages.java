@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import com.example.maple.locationupdatefrequent.Adapters.AdminMessagingAdapter;
 import com.example.maple.locationupdatefrequent.Adapters.MessagingAdapter;
 import com.example.maple.locationupdatefrequent.GPSTracker;
+import com.example.maple.locationupdatefrequent.GeoFencingDemo;
 import com.example.maple.locationupdatefrequent.Helper.DBHelper;
 import com.example.maple.locationupdatefrequent.Models.Admin;
 import com.example.maple.locationupdatefrequent.Models.Messaging;
@@ -75,9 +77,9 @@ public class AdminMessages extends Activity implements View.OnClickListener {
             // Toast.makeText(getBaseContext(),latitude+" "+longitude  ,Toast.LENGTH_SHORT).show();
         }
 
-        msg_back_img = (ImageView) findViewById(R.id.msg_back_img);
+        msg_back_img = findViewById(R.id.msg_back_img);
         msg_back_img.setOnClickListener(this);
-        messages_recyler = (RecyclerView) findViewById(R.id.adminmessages_recyler);
+        messages_recyler = findViewById(R.id.adminmessages_recyler);
         messages_recyler.setLayoutManager(new LinearLayoutManager(this));
 
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
@@ -104,7 +106,7 @@ public class AdminMessages extends Activity implements View.OnClickListener {
         }
     }
 
-    public void getAdminmessages(String deviceid) throws IOException {
+    public void getAdminmessages(String deviceid) {
 
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
@@ -126,6 +128,7 @@ public class AdminMessages extends Activity implements View.OnClickListener {
                 // e.printStackTrace();
                 Log.d("result", "service no runnning...............");
                 progress.dismiss();
+                showlocally();
             }
 
             @Override
@@ -136,33 +139,18 @@ public class AdminMessages extends Activity implements View.OnClickListener {
 
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().string());
-                        if (jsonObject.get("Message") instanceof JSONArray) {
-                            JSONArray jsonArray = jsonObject.getJSONArray("Message");
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject values = jsonArray.getJSONObject(i);
-                                Log.d("hello", values.getString("Message"));
-                                Log.d("hello", values.getString("MessageDateTime"));
-
-                                admins.add(new Admin(values.getString("Message"), values.getInt("MessageID"),
-                                        values.getString("MessageDateTime"), values.getInt("ReadStatus")));
-                            }
-                            AdminMessages.this.runOnUiThread(new Runnable() {
-                                public void run() {
-                                    adminMessagingAdapter = new AdminMessagingAdapter(admins, R.layout.adminmessage_single, getApplicationContext());
-                                    messages_recyler.setAdapter(adminMessagingAdapter);
-                                    adminMessagingAdapter.notifyDataSetChanged();
-                                }
-                            });
-
-                        } else {
-                            String jsobje = jsonObject.getString("Message");
-                            Log.d("elesdddd", jsobje);
-                        }
+                        SharedPreferences.Editor s = getSharedPreferences("AdminMessages", MODE_PRIVATE).edit();
+                        s.putString("status", "yes");
+                        s.putString("object", jsonObject.toString());
+                        s.commit();
+                        showlocally();
                     } catch (JSONException e) {
+                        showlocally();
                         e.printStackTrace();
                     }
                     //  throw new IOException("Unexpected code " + response.body().toString());
                 } else {
+                    showlocally();
                     Log.d("result_else", response.body().toString());
                     Log.e("TAG", "response 33: " + new Gson().toJson(response.body()));
                 }
@@ -170,5 +158,77 @@ public class AdminMessages extends Activity implements View.OnClickListener {
         });
     }
 
+    public void showlocally() {
+
+        try {
+            SharedPreferences s = getSharedPreferences("AdminMessages", MODE_PRIVATE);
+            if (s.getString("status", "").equals("yes")) {
+
+                JSONObject jsonObject = new JSONObject(s.getString("object", ""));
+                if (jsonObject.getString("Response").equals("Success")) {
+                    if (jsonObject.get("Message") instanceof JSONArray) {
+                        JSONArray jsonArray = jsonObject.getJSONArray("Message");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject values = jsonArray.getJSONObject(i);
+                            Log.d("hello", values.getString("Message"));
+                            Log.d("hello", values.getString("MessageDateTime"));
+
+                            admins.add(new Admin(values.getString("Message"), values.getInt("MessageID"),
+                                    values.getString("MessageDateTime"), values.getInt("ReadStatus")));
+                        }
+                        AdminMessages.this.runOnUiThread(new Runnable() {
+                            public void run() {
+                                adminMessagingAdapter = new AdminMessagingAdapter(admins, R.layout.adminmessage_single, getApplicationContext());
+                                messages_recyler.setAdapter(adminMessagingAdapter);
+                                adminMessagingAdapter.notifyDataSetChanged();
+                            }
+                        });
+
+                    } else {
+                        String jsobje = jsonObject.getString("Message");
+                        Log.d("elesdddd", jsobje);
+                    }
+                }
+            } else {
+                showDialog(AdminMessages.this,"Don't have any admin messages","no");
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void showDialog(Activity activity, String msg, final String status) {
+        final Dialog dialog = new Dialog(activity, R.style.PauseDialog);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.custom_dialog);
+
+        TextView text = dialog.findViewById(R.id.text_dialog);
+        text.setText(msg);
+
+        ImageView b = dialog.findViewById(R.id.b);
+        if (status.equals("yes")) {
+            b.setVisibility(View.VISIBLE);
+        } else {
+            b.setVisibility(View.GONE);
+        }
+        Button dialogButton = dialog.findViewById(R.id.btn_dialog);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (status.equals("yes")) {
+                    dialog.dismiss();
+
+                } else {
+                    dialog.dismiss();
+                }
+            }
+        });
+        dialog.show();
+
+    }
 
 }

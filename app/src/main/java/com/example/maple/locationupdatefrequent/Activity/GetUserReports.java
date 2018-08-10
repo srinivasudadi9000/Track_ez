@@ -119,7 +119,7 @@ public class GetUserReports extends Activity implements View.OnClickListener {
                 break;
             case R.id.refresh_img_user:
 
-                Intent getuser = new Intent(GetUserReports.this,GetUserReports.class);
+                Intent getuser = new Intent(GetUserReports.this, GetUserReports.class);
                 startActivity(getuser);
                 finish();
                 break;

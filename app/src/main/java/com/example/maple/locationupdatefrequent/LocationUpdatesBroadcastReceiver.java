@@ -36,6 +36,9 @@ import com.example.maple.locationupdatefrequent.Helper.Constants;
 import com.example.maple.locationupdatefrequent.Helper.DBHelper;
 import com.google.android.gms.location.LocationResult;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -88,15 +91,14 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
         if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
 
-        } else if ( android.os.Build.MANUFACTURER.equals("vivo")){
+        } else if (android.os.Build.MANUFACTURER.equals("vivo")) {
             alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
             //alarmMgr.set(android.app.AlarmManager.RTC_WAKEUP,30000, pendingIntent);
-
-        }else {
+        } else {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
 
-                }else {
+                } else {
                     alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
                 }
                 // only for gingerbread and newer versions
@@ -106,8 +108,6 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
         if (intent != null) {
             Log.d(TAG, "onReceive entered if");
             //  Log.d("addresss ",getaddressFromGEO(17.7167105,83.306409));
-
-
             final String action = intent.getAction();
             if (ACTION_PROCESS_UPDATES.equals(action)) {
                 Log.d(TAG, "onReceive entered ACTION_PROCESS_UPDATES");
@@ -153,8 +153,8 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                             s.putInt("value", o_value++);
                             s.commit();
                         }*/
-                            sendlatlong_to_server(latitude, longitude, millisInString);
-                     } else {
+                        sendlatlong_to_server(latitude, longitude, millisInString);
+                    } else {
                         SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
                         DBHelper dbHelper = new DBHelper(context);
                         if (Validations.hasActiveInternetConnection(context)) {
@@ -180,10 +180,33 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                     LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
                 } else {
                     SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
-                    DBHelper dbHelper = new DBHelper(context);
-                    dbHelper.insertProject("Unable To Fetch", "Unable To Fetch", millisInString, "wow",
-                            s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
-                            , context);
+                    GPSTracker gpsTracker = new GPSTracker(context);
+                    if (gpsTracker.isGPSEnabled) {
+                        if (gpsTracker.canGetLocation()) {
+                            String lat, longi;
+                            lat = String.valueOf(gpsTracker.getLatitude());
+                            longi = String.valueOf(gpsTracker.getLongitude());
+                            if (lat.equals("0.0") || longi.equals("0.0")) {
+
+                            } else {
+                                DBHelper dbHelper = new DBHelper(context);
+                                dbHelper.insertProject(lat, longi, millisInString, "wow",
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
+                                        , context);
+                            }
+                        } else {
+                            DBHelper dbHelper = new DBHelper(context);
+                            dbHelper.insertProject("Unable To Fetch", "Unable To Fetch", millisInString, "wow",
+                                    s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
+                                    , context);
+                        }
+                    } else {
+                        DBHelper dbHelper = new DBHelper(context);
+                        dbHelper.insertProject("Unable To Fetch", "Unable To Fetch", millisInString, "wow",
+                                s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
+                                , context);
+                    }
+
                 }
             }
         }
@@ -281,7 +304,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
             @Override
             public void onResponse(Call call, final Response response) {
-                if (!response.isSuccessful()) {
+               /* if (!response.isSuccessful()) {
                     Log.d("result", response.toString());
                     // Log.d("addresss ", getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""));
                     //throw new IOException("Unexpected code " + response);
@@ -298,6 +321,39 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                     DBHelper dbHelper = new DBHelper(context);
                     dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
                             s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", context);
+                }*/
+
+                SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
+                if (!response.isSuccessful()) {
+                    Log.d("result", response.toString());
+                    // Log.d("addresss ", getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""));
+                    //throw new IOException("Unexpected code " + response);
+                    s.getString("DeviceId", "");
+                    s.getString("deviceno", "");
+
+                    DBHelper dbHelper = new DBHelper(context);
+                    dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
+                            s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", context);
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONArray jsonArray = jsonObject.getJSONArray("Message");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                            if (jsonObject1.getString("Response").equals("Success")) {
+                                DBHelper dbHelper = new DBHelper(context);
+                                dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", context);
+                            } else {
+                                DBHelper dbHelper = new DBHelper(context);
+                                dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", context);
+                            }
+                        }
+                    } catch (Exception e) {
+
+                    }
+
                 }
             }
         });

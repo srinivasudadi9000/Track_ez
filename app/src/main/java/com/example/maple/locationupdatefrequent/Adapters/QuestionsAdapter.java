@@ -58,8 +58,19 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.Chec
     @SuppressLint("NewApi")
     @Override
     public void onBindViewHolder(final CheckIn holder, final int position) {
+       if (position ==0){
+           String str1 = new String(questions.get(position).getAnswer());
+           int subls = str1.indexOf('$');
+           if (subls>=1){
+               holder.answer_tv.setText(str1.substring(0,subls));
+           }else {
+               holder.answer_tv.setText(str1);
+           }
+       }else {
+           holder.answer_tv.setText(questions.get(position).getAnswer());
+       }
 
-        holder.answer_tv.setText(questions.get(position).getAnswer());
+
         holder.question_tv.setText(questions.get(position).getQuestion());
         if (questions.get(position).getAnswer().length()>25){
             holder.more_ans_tv.setText("More");
@@ -75,6 +86,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.Chec
                 Intent qd = new Intent(context, QD.class);
                 qd.putExtra("question",holder.question_tv.getText().toString());
                 qd.putExtra("answer",holder.answer_tv.getText().toString());
+                qd.putExtra("state","question");
                 context.startActivity(qd);
              }
         });

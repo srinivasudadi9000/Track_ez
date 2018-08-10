@@ -19,14 +19,19 @@ public class QD extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qd);
-         showDialog(getIntent().getStringExtra("question"),getIntent().getStringExtra("answer"));
+         showDialog(getIntent().getStringExtra("question"),getIntent().getStringExtra("answer"),getIntent().getStringExtra("state"));
     }
 
-    public void showDialog(String question, String answer) {
+    public void showDialog(String question, String answer,String state) {
         final Dialog dialog = new Dialog(QD.this, R.style.simpledialog);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
-        dialog.setContentView(R.layout.custom_dialog_question);
+        if (state.equals("message")){
+            dialog.setContentView(R.layout.custom_dialog_message);
+        }else {
+            dialog.setContentView(R.layout.custom_dialog_question);
+        }
+
 
         TextView question_tv_cdq = dialog.findViewById(R.id.question_tv_cdq);
         question_tv_cdq.setText(question);

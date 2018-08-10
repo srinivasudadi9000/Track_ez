@@ -282,6 +282,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
                                 s.putString("DeviceId", values.getString("DeviceID"));
                                 s.putString("deviceno", values.getString("DeviceNo"));
                                 s.putString("MobileDeviceID", MobileDeviceID);
+                                s.putString("start_stop", "");
                                 s.putString("personname", values.getString("PersonName"));
                                 s.putString("CategoryID", values.getString("CategoryID"));
                                 s.putString("category", values.getString("Category"));
@@ -297,7 +298,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
                                 JSONArray jsonObject1 = new JSONArray(arrayFromString.toString());
                                 for (int j=0;j<jsonObject1.length();j++){
                                     JSONObject jsonObject2 = jsonObject1.getJSONObject(j);
-                                    System.out.println("Good DADTi................."+jsonObject2.getString("CenterNumber"));
+                                    System.out.println("Good DADTi................."+jsonObject2.getString("CenterName"));
                                 }
                                 System.out.println("Jsonobject1 "+arrayFromString.toString());
                                 String ReportParameters =   values.getString("ReportParameters").toString();

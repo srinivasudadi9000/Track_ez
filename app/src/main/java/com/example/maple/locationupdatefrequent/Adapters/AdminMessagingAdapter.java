@@ -2,6 +2,7 @@ package com.example.maple.locationupdatefrequent.Adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.maple.locationupdatefrequent.Activity.QD;
 import com.example.maple.locationupdatefrequent.Models.Admin;
 import com.example.maple.locationupdatefrequent.Models.Messaging;
 import com.example.maple.locationupdatefrequent.R;
@@ -44,7 +46,7 @@ public class AdminMessagingAdapter extends RecyclerView.Adapter<AdminMessagingAd
 
     @SuppressLint("NewApi")
     @Override
-    public void onBindViewHolder(CheckIn holder, int position) {
+    public void onBindViewHolder(final CheckIn holder, int position) {
         holder.message_tv.setText(admins.get(position).getMessage());
 
         DateFormat originalFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.ENGLISH);
@@ -59,6 +61,19 @@ public class AdminMessagingAdapter extends RecyclerView.Adapter<AdminMessagingAd
             e.printStackTrace();
         }
 
+        if (holder.message_tv.getText().length()>25){
+            holder.adminstatsu_txt.setVisibility(View.VISIBLE);
+        }
+        holder.adminstatsu_txt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent qd = new Intent(context, QD.class);
+                qd.putExtra("question","Admin Message ??");
+                qd.putExtra("answer",holder.message_tv.getText().toString()+"\n"+holder.status_tv.getText().toString());
+                qd.putExtra("state","message");
+                context.startActivity(qd);
+            }
+        });
 
     }
 
@@ -69,13 +84,13 @@ public class AdminMessagingAdapter extends RecyclerView.Adapter<AdminMessagingAd
 
     public class CheckIn extends RecyclerView.ViewHolder {
         TextView message_tv, status_tv;
-        ImageView statsu_img;
+        TextView adminstatsu_txt;
 
         public CheckIn(View itemView) {
             super(itemView);
-            statsu_img = (ImageView) itemView.findViewById(R.id.adminstatsu_img);
-            message_tv = (TextView) itemView.findViewById(R.id.adminmessage_tv);
-            status_tv = (TextView) itemView.findViewById(R.id.adminstatus_tv);
+            adminstatsu_txt = itemView.findViewById(R.id.adminstatsu_txt);
+            message_tv = itemView.findViewById(R.id.adminmessage_tv);
+            status_tv = itemView.findViewById(R.id.adminstatus_tv);
         }
     }
 

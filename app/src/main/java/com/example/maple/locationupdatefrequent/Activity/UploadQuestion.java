@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.maple.locationupdatefrequent.GPSTracker;
 import com.example.maple.locationupdatefrequent.GeoFencingDemo;
@@ -96,13 +98,14 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     TextView[] tvArray;
     EditText[] etArray;
     int len;
-    String formattedMessage = "", clicked = "not";
+    String formattedMessage = "", clicked = "not", CenterID = "not",CenterName="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_question);
         center = new ArrayList<>();
+
         centerDetails = new ArrayList<CenterDetails>();
         category_spinner = findViewById(R.id.category_spinner);
         done_img = findViewById(R.id.done_img);
@@ -137,6 +140,24 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
 
             getmylocal();
         }
+
+        category_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+               // CenterID = adapterView.getSelectedItem().toString();
+                CenterName = centerDetails.get(i).getCenterNumber().toString();
+                CenterID =  centerDetails.get(i).getCenterid().toString();
+                Toast.makeText(getBaseContext(), centerDetails.get(i).getCenterid().toString(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+               // CenterID = adapterView.getSelectedItem().toString();
+                CenterName = centerDetails.get(adapterView.getId()).getCenterNumber().toString();
+                CenterID =  centerDetails.get(adapterView.getId()).getCenterid().toString();
+                Toast.makeText(getBaseContext(), CenterID.toString() + adapterView.getId(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void GetCentersandReportParams() {
@@ -190,7 +211,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                                 JSONArray jsonObject1 = new JSONArray(arrayFromString.toString());
                                 for (int j = 0; j < jsonObject1.length(); j++) {
                                     JSONObject jsonObject2 = jsonObject1.getJSONObject(j);
-                                    System.out.println("Good DADTi................." + jsonObject2.getString("CenterNumber"));
+                                    System.out.println("Good DADTi................." + jsonObject2.getString("CenterName"));
                                 }
                                 System.out.println("Jsonobject1 " + arrayFromString.toString());
                                 String ReportParameters = values.getString("ReportParameters").toString();
@@ -272,13 +293,14 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
 
             try {
                 JSONArray cd = new JSONArray(editor.getString("Centers", ""));
-
+                centerDetails.add(new CenterDetails("--select--", "0"));
+                center.add("--select--");
                 System.out.println("sizeof cener" + cd.toString());
                 for (int i = 0; i < cd.length(); i++) {
                     JSONObject jsonObject2 = cd.getJSONObject(i);
-                    System.out.println("centerno " + jsonObject2.getString("CenterNumber"));
-                    // centerDetails.add(new CenterDetails(  cd.get(i).getCenterNumber(),  cd.get(i).getCenterid()));
-                    center.add(jsonObject2.getString("CenterNumber"));
+                    System.out.println("centerno " + jsonObject2.getString("CenterName"));
+                    centerDetails.add(new CenterDetails(jsonObject2.getString("CenterName"), jsonObject2.getString("CenterID")));
+                    center.add(jsonObject2.getString("CenterName"));
                 }
 
                 ArrayAdapter<String> plot_number = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, center);
@@ -302,7 +324,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 finish();
                 break;
             case R.id.done_img:
-
+                formattedMessage = "Center Name"+"<br/>Obs."+CenterName+"$"+CenterID+"<br/><br/>";
                 for (int i = 0; i < len; i++) {
                     formattedMessage = formattedMessage + tvArray[i].getText().toString() + "<br/>Obs. " + etArray[i].getText().toString();
                     if (i != len - 1)
@@ -583,17 +605,17 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
         System.out.println("Camera request code......................" + resultCode);
 
-            try {
-                BitmapFactory.Options opt = new BitmapFactory.Options();
-                opt.inSampleSize = 8;
-                opt.inMutable = true;
-                Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
-                ivOtherImage2.setScaleType(ImageView.ScaleType.FIT_XY);
-                ivOtherImage2.setImageBitmap(bmImage);
-                compressImage(otherImagefile2.getAbsolutePath().toString());
-            } catch (Exception e) {
-                Log.e("msg", e.getMessage());
-            }
+        try {
+            BitmapFactory.Options opt = new BitmapFactory.Options();
+            opt.inSampleSize = 8;
+            opt.inMutable = true;
+            Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
+            ivOtherImage2.setScaleType(ImageView.ScaleType.FIT_XY);
+            ivOtherImage2.setImageBitmap(bmImage);
+            compressImage(otherImagefile2.getAbsolutePath().toString());
+        } catch (Exception e) {
+            Log.e("msg", e.getMessage());
+        }
 
 
     }

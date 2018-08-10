@@ -24,6 +24,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -57,6 +58,7 @@ import com.example.maple.locationupdatefrequent.Activity.Messages;
 import com.example.maple.locationupdatefrequent.Activity.SplashScreen;
 import com.example.maple.locationupdatefrequent.Activity.UploadQuestion;
 import com.example.maple.locationupdatefrequent.Helper.Constants;
+import com.example.maple.locationupdatefrequent.Helper.DBHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -82,13 +84,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.master.permissionhelper.PermissionHelper;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         OnMapReadyCallback,
@@ -153,7 +171,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     private PermissionHelper permissionHelper;
     FloatingActionButton start_fab;
     TextView statsu_tv, tapstatus_tv, device_id;
-    CardView status_cv, logout_cv, mesages_cardview, admin_msg_cv, recentrep_cv,dailyreport_cv;
+    CardView status_cv, logout_cv, mesages_cardview, admin_msg_cv, recentrep_cv, dailyreport_cv;
     ImageView back_img, refresh_img;
 
     @Override
@@ -948,6 +966,20 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
                 vibrate();
                 if (statsu_tv.getText().toString().equals("START")) {
+                    SharedPreferences.Editor s = getSharedPreferences("Userdetails", MODE_PRIVATE).edit();
+                    s.putString("start_stop", "1");
+                    s.commit();
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                    String millisInString = dateFormat.format(new Date());
+
+                    GPSTracker gpsTracker = new GPSTracker(GeoFencingDemo.this);
+                    String latitude, longitude;
+                    latitude = String.valueOf(gpsTracker.getLatitude());
+                    longitude = String.valueOf(gpsTracker.getLongitude());
+
+                    sendlatlong_to_server(latitude, longitude, millisInString);
+
                     isWriteStoragePermissionGranted();
                     PreferenceManager.getDefaultSharedPreferences(this)
                             .registerOnSharedPreferenceChangeListener(this);
@@ -988,6 +1020,18 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                     pm.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                             PackageManager.DONT_KILL_APP);
                 } else {
+                    SharedPreferences.Editor s = getSharedPreferences("Userdetails", MODE_PRIVATE).edit();
+                    s.putString("start_stop", "0");
+                    s.commit();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                    String millisInString = dateFormat.format(new Date());
+
+                    GPSTracker gpsTracker = new GPSTracker(GeoFencingDemo.this);
+                    String latitude, longitude;
+                    latitude = String.valueOf(gpsTracker.getLatitude());
+                    longitude = String.valueOf(gpsTracker.getLongitude());
+
+                    sendlatlong_to_server(latitude, longitude, millisInString);
                    /* clearApplicationData();
                     getCancelIntent();*/
                     PreferenceManager.getDefaultSharedPreferences(this)
@@ -1120,6 +1164,81 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
         return dir.delete();
     }
+
+    public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime) {
+        SharedPreferences s = GeoFencingDemo.this.getSharedPreferences("Userdetails", MODE_PRIVATE);
+        // avoid creating several instances, should be singleon
+        OkHttpClient client = new OkHttpClient();
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://125.62.194.181/tracker/trackernew.asmx/UpdateLocation?").newBuilder();
+        urlBuilder.addQueryParameter("Token", "VVD@14");
+        urlBuilder.addQueryParameter("DeviceID", s.getString("DeviceId", ""));
+        // urlBuilder.addQueryParameter("DeviceID", "5");
+        urlBuilder.addQueryParameter("Lat", latitude);
+        urlBuilder.addQueryParameter("Long", longitude);
+        urlBuilder.addQueryParameter("Altitude", "20");
+        urlBuilder.addQueryParameter("Speed", "10");
+        urlBuilder.addQueryParameter("Course", "android_srinivas");
+        urlBuilder.addQueryParameter("Battery", "20");
+        urlBuilder.addQueryParameter("Address", "vizag");
+        urlBuilder.addQueryParameter("LocationProvider", s.getString("personname", ""));
+        urlBuilder.addQueryParameter("UpdatedDateTime", datetime);
+        urlBuilder.addQueryParameter("AppStatus", s.getString("start_stop",""));
+        urlBuilder.addQueryParameter("MobileDeviceID", s.getString("deviceno", ""));
+        //  urlBuilder.addQueryParameter("MobileDeviceID", "9999999999");
+
+        String url = urlBuilder.build().toString();
+
+        final Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // Log.d("result", e.getMessage().toString());
+                // e.printStackTrace();
+                Log.d("result", "service no runnning...............");
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) {
+                SharedPreferences s = GeoFencingDemo.this.getSharedPreferences("Userdetails", MODE_PRIVATE);
+                if (!response.isSuccessful()) {
+                    Log.d("result", response.toString());
+                    // Log.d("addresss ", getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""));
+                    //throw new IOException("Unexpected code " + response);
+                    s.getString("DeviceId", "");
+                    s.getString("deviceno", "");
+
+                    DBHelper dbHelper = new DBHelper(GeoFencingDemo.this);
+                    dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
+                            s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", GeoFencingDemo.this);
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONArray jsonArray = jsonObject.getJSONArray("Message");
+                        for (int i = 0;i<jsonArray.length();i++){
+                            JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                            if (jsonObject1.getString("Response").equals("Success")){
+                                DBHelper dbHelper = new DBHelper(GeoFencingDemo.this);
+                                dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", GeoFencingDemo.this);
+                            }else {
+                                DBHelper dbHelper = new DBHelper(GeoFencingDemo.this);
+                                dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", GeoFencingDemo.this);
+                            }
+                        }
+                    }catch (Exception e){
+
+                    }
+
+                }
+            }
+        });
+    }
+
 }
 
 
