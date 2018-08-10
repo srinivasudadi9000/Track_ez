@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.CheckIn> {
     ArrayList<Question> questions;
     int Rowlayout;
@@ -87,6 +89,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.Chec
                 qd.putExtra("question",holder.question_tv.getText().toString());
                 qd.putExtra("answer",holder.answer_tv.getText().toString());
                 qd.putExtra("state","question");
+                qd.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(qd);
              }
         });

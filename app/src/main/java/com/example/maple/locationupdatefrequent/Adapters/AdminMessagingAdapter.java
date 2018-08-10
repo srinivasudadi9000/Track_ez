@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 public class AdminMessagingAdapter extends RecyclerView.Adapter<AdminMessagingAdapter.CheckIn> {
     ArrayList<Admin> admins;
     int Rowlayout;
@@ -72,6 +74,7 @@ public class AdminMessagingAdapter extends RecyclerView.Adapter<AdminMessagingAd
                 qd.putExtra("question", "  Message ");
                 qd.putExtra("answer", holder.message_tv.getText().toString() + "\n" + holder.status_tv.getText().toString());
                 qd.putExtra("state", "message");
+                qd.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(qd);
             }
         });

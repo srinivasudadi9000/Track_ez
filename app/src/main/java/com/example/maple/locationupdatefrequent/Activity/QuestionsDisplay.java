@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.example.maple.locationupdatefrequent.Adapters.GetUserReportsAdapter;
 import com.example.maple.locationupdatefrequent.Adapters.QuestionsAdapter;
 import com.example.maple.locationupdatefrequent.GPSTracker;
+import com.example.maple.locationupdatefrequent.Helper.ProportionalImageView;
 import com.example.maple.locationupdatefrequent.Helper.ZoomableImageView;
 import com.example.maple.locationupdatefrequent.Models.Question;
 import com.example.maple.locationupdatefrequent.Models.Reports;
@@ -50,7 +51,7 @@ public class QuestionsDisplay extends Activity implements View.OnClickListener {
     ArrayList<Question> questions;
     QuestionsAdapter questionsAdapter;
     ProgressDialog progress;
-    ZoomableImageView myimage;
+    ProportionalImageView myimage;
     DisplayImageOptions options;
 
     @Override
