@@ -14,7 +14,8 @@
         android:layout_height="60dp"
         android:src="@drawable/setup" />
 
-    <TextView
+    <com.example.maple.locationupdatefrequent.Helper.Typewriter
+        android:id="@+id/network_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"

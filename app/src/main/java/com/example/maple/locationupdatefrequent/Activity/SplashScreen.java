@@ -1,6 +1,7 @@
 package com.example.maple.locationupdatefrequent.Activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,17 +10,26 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.maple.locationupdatefrequent.Helper.Typewriter;
 import com.example.maple.locationupdatefrequent.R;
 
 public class SplashScreen extends Activity {
+    Typewriter trackez_tv;
 
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Typewriter writer = new Typewriter(this);
         setContentView(R.layout.splash_screen);
+        trackez_tv = findViewById(R.id.trackez_tv);
+        //Add a character every 150ms
+
         givepermissionaccess();
+
     }
 
     @Override
@@ -50,7 +60,9 @@ public class SplashScreen extends Activity {
                     Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET, Manifest.permission.WRITE_EXTERNAL_STORAGE
                     , Manifest.permission.READ_PHONE_STATE}, 0);
         } else {
-           // Toast.makeText(getBaseContext(), "All permissions granted.", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(getBaseContext(), "All permissions granted.", Toast.LENGTH_SHORT).show();
+            trackez_tv.setCharacterDelay(150);
+            trackez_tv.animateText("TrackEz");
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {

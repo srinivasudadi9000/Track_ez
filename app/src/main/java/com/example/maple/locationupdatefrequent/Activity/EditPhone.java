@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.maple.locationupdatefrequent.GeoFencingDemo;
+import com.example.maple.locationupdatefrequent.Helper.Typewriter;
 import com.example.maple.locationupdatefrequent.R;
 import com.example.maple.locationupdatefrequent.Validations;
 import com.google.gson.Gson;
@@ -63,14 +64,20 @@ public class EditPhone extends Activity implements View.OnClickListener {
     Boolean selected = false;
     ProgressDialog progress;
 
+    //Typewriter mobile_tv;
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_phone);
+        // mobile_tv = (Typewriter) findViewById(R.id.mobile_tv);
         view_mobile_ll = findViewById(R.id.view_mobile_ll);
         view_mobile_edt_ll = findViewById(R.id.view_mobile_edt_ll);
         edit_tv = findViewById(R.id.edit_tv);
         phone_no_radio = findViewById(R.id.phone_no_radio);
+
+    /*    mobile_tv.setCharacterDelay(150);
+        mobile_tv.animateText("Mobile Number");*/
 
         close_img = findViewById(R.id.cancel_ll);
         okay_app_compact = findViewById(R.id.okay_app_compact);
@@ -106,7 +113,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 selected = true;
-               // Toast.makeText(getBaseContext(), compoundButton.getText().toString(), Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getBaseContext(), compoundButton.getText().toString(), Toast.LENGTH_SHORT).show();
             }
         });
         Log.d("editphone", mPhoneNumber);
@@ -145,10 +152,13 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 }
                 break;
             case R.id.edit_tv:
+
                 view_mobile_ll.setVisibility(View.GONE);
                 view_mobile_edt_ll.setVisibility(View.VISIBLE);
                 Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slidein);
                 view_mobile_edt_ll.startAnimation(animation);
+                /*mobile_tv.setCharacterDelay(150);
+                mobile_tv.animateText("Mobile Number");*/
                 break;
 
             case R.id.register_app:
@@ -161,13 +171,19 @@ public class EditPhone extends Activity implements View.OnClickListener {
                         progress.setIndeterminate(true);
                         progress.setCancelable(false);
                         progress.show();
-                        Log.d("phonenuo........", phone_no_radio.getText().subSequence(2, 12).toString());
+                        //  Log.d("phonenuo........", phone_no_radio.getText().subSequence(2, 12).toString());
                         if (phone_no_radio.getText().toString().length() < 10) {
                             //getuserdetails(phone_no_radio.getText().toString());
                             setRegisterdetails(phone_no_radio.getText().toString());
                         } else {
-                           // getuserdetails(phone_no_radio.getText().subSequence(2, 12).toString());
-                            setRegisterdetails(phone_no_radio.getText().subSequence(2, 12).toString());
+                            if (phone_no_radio.getText().length() == 10) {
+                                setRegisterdetails(phone_no_radio.getText().subSequence(0, 10).toString());
+                            } else if (phone_no_radio.getText().length() == 11) {
+                                setRegisterdetails(phone_no_radio.getText().subSequence(1, 11).toString());
+                            } else if (phone_no_radio.getText().length() == 12) {
+                                setRegisterdetails(phone_no_radio.getText().subSequence(2, 12).toString());
+                            }
+                            // getuserdetails(phone_no_radio.getText().subSequence(2, 12).toString());
                         }
                     } else {
                         showDialog(EditPhone.this, "Your device does not seem to be connected to internet, enable and retry", "no");
@@ -183,7 +199,9 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 view_mobile_ll.setVisibility(View.VISIBLE);
                 view_mobile_edt_ll.setVisibility(View.GONE);
                 phon_no_edtxt.setText("");
-               // Toast.makeText(getBaseContext(), "Exit Button", Toast.LENGTH_SHORT).show();
+              /*  mobile_tv.setCharacterDelay(150);
+                mobile_tv.animateText("Mobile Number");*/
+                // Toast.makeText(getBaseContext(), "Exit Button", Toast.LENGTH_SHORT).show();
                 //finish();
                 break;
         }
@@ -261,7 +279,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 // Log.d("result", e.getMessage().toString());
                 // e.printStackTrace();
                 Log.d("result", "service no runnning...............");
-                showDialog(EditPhone.this,"Internal server occured please try again" , "no");
+                showDialog(EditPhone.this, "Internal server occured please try again", "no");
             }
 
             @Override
@@ -289,25 +307,25 @@ public class EditPhone extends Activity implements View.OnClickListener {
                                 s.putString("RefreshTimeInterval", values.getString("RefreshTimeInterval"));
                                 s.commit();
                                 JsonParser jsonParser = new JsonParser();
-                           //     JsonArray arrayFromString = jsonParser.parse(String.valueOf(values.getJSONArray("Centers"))).getAsJsonArray();
-                               // JSONArray jsonArray2 = values.getJSONArray("Centers");
+                                //     JsonArray arrayFromString = jsonParser.parse(String.valueOf(values.getJSONArray("Centers"))).getAsJsonArray();
+                                // JSONArray jsonArray2 = values.getJSONArray("Centers");
                                 // Convert JSON Array String into JSON Array
-                                String jsonArrayString =   values.getString("Centers").toString();
+                                String jsonArrayString = values.getString("Centers").toString();
                                 JsonArray arrayFromString = jsonParser.parse(jsonArrayString).getAsJsonArray();
                                 System.out.println(arrayFromString.toString());
                                 JSONArray jsonObject1 = new JSONArray(arrayFromString.toString());
-                                for (int j=0;j<jsonObject1.length();j++){
+                                for (int j = 0; j < jsonObject1.length(); j++) {
                                     JSONObject jsonObject2 = jsonObject1.getJSONObject(j);
-                                    System.out.println("Good DADTi................."+jsonObject2.getString("CenterName"));
+                                    System.out.println("Good DADTi................." + jsonObject2.getString("CenterName"));
                                 }
-                                System.out.println("Jsonobject1 "+arrayFromString.toString());
-                                String ReportParameters =   values.getString("ReportParameters").toString();
+                                System.out.println("Jsonobject1 " + arrayFromString.toString());
+                                String ReportParameters = values.getString("ReportParameters").toString();
                                 JsonArray ReportParametersa = jsonParser.parse(ReportParameters).getAsJsonArray();
                                 System.out.println(ReportParametersa.toString());
 
-                                SharedPreferences.Editor editor = getSharedPreferences("questions",MODE_PRIVATE).edit();
-                                editor.putString("Centers",arrayFromString.toString());
-                                editor.putString("ReportParameters",ReportParametersa.toString());
+                                SharedPreferences.Editor editor = getSharedPreferences("questions", MODE_PRIVATE).edit();
+                                editor.putString("Centers", arrayFromString.toString());
+                                editor.putString("ReportParameters", ReportParametersa.toString());
                                 editor.commit();
                                 EditPhone.this.runOnUiThread(new Runnable() {
                                     public void run() {
@@ -315,11 +333,11 @@ public class EditPhone extends Activity implements View.OnClickListener {
                                     }
                                 });
 
-                            }else {
+                            } else {
                                 EditPhone.this.runOnUiThread(new Runnable() {
                                     public void run() {
                                         try {
-                                            showDialog(EditPhone.this,values.getString("Message") , "no");
+                                            showDialog(EditPhone.this, values.getString("Message"), "no");
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
