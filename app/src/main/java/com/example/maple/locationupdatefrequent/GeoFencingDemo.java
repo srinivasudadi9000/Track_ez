@@ -208,6 +208,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         sharedPreferences = getSharedPreferences("location_date_storage", MODE_PRIVATE);
         START_STOP = getSharedPreferences("START_STOP", MODE_PRIVATE);
         if (START_STOP.getString("status", "").length() > 0) {
+
             if (START_STOP.getString("status", "").equals("STOP")) {
                 statsu_tv.setTextColor(getResources().getColor(R.color.green));
                 statsu_tv.setText(START_STOP.getString("status", "").toString());
@@ -413,7 +414,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 //    }
 
     private String getaddressFromGEO(double latitude, double longitude) {
-        Geocoder geocoder;
+      /*  Geocoder geocoder;
         List<Address> addresses = null;
         geocoder = new Geocoder(this, Locale.getDefault());
         try {
@@ -422,7 +423,8 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
             e.printStackTrace();
         }
         String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-
+*/
+        String address = String.valueOf(latitude + longitude);
 //        String city = addresses.get(0).getLocality();
 //        String state = addresses.get(0).getAdminArea();
 //        String country = addresses.get(0).getCountryName();
@@ -539,7 +541,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                         //Toast.makeText(getBaseContext(),,Toast.LENGTH_SHORT).show();
                     } catch (IntentSender.SendIntentException sendEx) {
                         // Ignore the error.
-                      ///  Toast.makeText(getBaseContext(), "cancel the dialog", Toast.LENGTH_SHORT).show();
+                        ///  Toast.makeText(getBaseContext(), "cancel the dialog", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -551,7 +553,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         super.onActivityResult(requestCode, resultCode, data);
         String xx = String.valueOf(requestCode);
         String yy = String.valueOf(resultCode);
-      //  Toast.makeText(getBaseContext(), "REquest code :" + xx + "  request res : " + yy, Toast.LENGTH_SHORT).show();
+        //  Toast.makeText(getBaseContext(), "REquest code :" + xx + "  request res : " + yy, Toast.LENGTH_SHORT).show();
         if (resultCode == 0) {
             createLocationRequest();
         }
@@ -919,7 +921,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         permissionHelper.request(new PermissionHelper.PermissionCallback() {
             @Override
             public void onPermissionGranted() {
-              //  Toast.makeText(act, "granted", Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(act, "granted", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onPermissionGranted() called");
 
                 buildGoogleApiClient();
@@ -937,7 +939,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
             @Override
             public void onPermissionDenied() {
-              //  Toast.makeText(GeoFencingDemo.this, "permission denied", Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(GeoFencingDemo.this, "permission denied", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onPermissionDenied() called");
             }
 
@@ -1000,7 +1002,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                     if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
                         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
                     } else if (android.os.Build.MANUFACTURER.equals("vivo")) {
-                      //  Toast.makeText(getBaseContext(), "vivo mobile", Toast.LENGTH_SHORT).show();
+                        //  Toast.makeText(getBaseContext(), "vivo mobile", Toast.LENGTH_SHORT).show();
                         //  alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
                         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 30000, pendingIntent);
                     } else {
@@ -1049,6 +1051,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
             case R.id.status_cv:
                 Intent attndance_lo = new Intent(GeoFencingDemo.this, Attendance_lo.class);
+                attndance_lo.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(attndance_lo);
                 break;
             case R.id.dailyreport_cv:
@@ -1122,6 +1125,14 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     }
 
     @Override
+    protected void onDestroy() {
+        SharedPreferences.Editor start_stop = getSharedPreferences("START_STOP", MODE_PRIVATE).edit();
+        start_stop.putString("status", statsu_tv.getText().toString());
+        start_stop.commit();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         SharedPreferences.Editor start_stop = getSharedPreferences("START_STOP", MODE_PRIVATE).edit();
@@ -1166,7 +1177,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     }
 
     public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime) {
-        SharedPreferences s = GeoFencingDemo.this.getSharedPreferences("Userdetails", MODE_PRIVATE);
+        final SharedPreferences s = GeoFencingDemo.this.getSharedPreferences("Userdetails", MODE_PRIVATE);
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
 
@@ -1183,7 +1194,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         urlBuilder.addQueryParameter("Address", "vizag");
         urlBuilder.addQueryParameter("LocationProvider", s.getString("personname", ""));
         urlBuilder.addQueryParameter("UpdatedDateTime", datetime);
-        urlBuilder.addQueryParameter("AppStatus", s.getString("start_stop",""));
+        urlBuilder.addQueryParameter("AppStatus", s.getString("start_stop", ""));
         urlBuilder.addQueryParameter("MobileDeviceID", s.getString("deviceno", ""));
         //  urlBuilder.addQueryParameter("MobileDeviceID", "9999999999");
 
@@ -1198,6 +1209,11 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
             public void onFailure(Call call, IOException e) {
                 // Log.d("result", e.getMessage().toString());
                 // e.printStackTrace();
+
+                DBHelper dbHelper = new DBHelper(GeoFencingDemo.this);
+                dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
+                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", s.getString("start_stop", ""), GeoFencingDemo.this);
+
                 Log.d("result", "service no runnning...............");
             }
 
@@ -1213,24 +1229,24 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
                     DBHelper dbHelper = new DBHelper(GeoFencingDemo.this);
                     dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
-                            s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", GeoFencingDemo.this);
+                            s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", s.getString("start_stop", ""), GeoFencingDemo.this);
                 } else {
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().string());
                         JSONArray jsonArray = jsonObject.getJSONArray("Message");
-                        for (int i = 0;i<jsonArray.length();i++){
+                        for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject1 = jsonArray.getJSONObject(i);
-                            if (jsonObject1.getString("Response").equals("Success")){
+                            if (jsonObject1.getString("Response").equals("Success")) {
                                 DBHelper dbHelper = new DBHelper(GeoFencingDemo.this);
                                 dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
-                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", GeoFencingDemo.this);
-                            }else {
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", s.getString("start_stop", ""), GeoFencingDemo.this);
+                            } else {
                                 DBHelper dbHelper = new DBHelper(GeoFencingDemo.this);
                                 dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
-                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", GeoFencingDemo.this);
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", s.getString("start_stop", ""), GeoFencingDemo.this);
                             }
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
 
                     }
 

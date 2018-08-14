@@ -89,8 +89,7 @@
                 android:layout_marginRight="5dp"
                 android:layout_weight="1.2"
                 android:adjustViewBounds="true"
-                android:maxWidth="39dip"
-                android:layout_centerInParent="true"
+                 android:layout_centerInParent="true"
                 android:scaleType="centerInside"
                 android:src="@drawable/car" />
         </LinearLayout>

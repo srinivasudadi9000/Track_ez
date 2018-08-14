@@ -43,6 +43,7 @@ Typewriter network_tv;
                 SharedPreferences s = getSharedPreferences("Userdetails",MODE_PRIVATE);
                 if (s.getString("deviceno","").toString().length()>1){
                     Intent dashboard = new Intent(Home.this,GeoFencingDemo.class);
+                    dashboard.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(dashboard);
                     finish();
                 }else {

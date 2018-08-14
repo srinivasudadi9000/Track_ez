@@ -9,8 +9,9 @@ public class DBHelper {
     static Context context;
 
     public DBHelper(Context context) {
+
         db = context.openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS checktime(latitude VARCHAR,longitude VARCHAR,cdt VARCHAR,address VARCHAR,deviceid VARCHAR,deviceno VARCHAR,status VARCHAR);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS checktime(latitude VARCHAR,longitude VARCHAR,cdt VARCHAR,address VARCHAR,deviceid VARCHAR,deviceno VARCHAR,status VARCHAR,run VARCHAR);");
         db.execSQL("CREATE TABLE IF NOT EXISTS messages(latitude VARCHAR,longitude VARCHAR,msg VARCHAR,cdt VARCHAR,status VARCHAR);");
         db.execSQL("CREATE TABLE IF NOT EXISTS dailyreports(latitude VARCHAR,longitude VARCHAR,msg VARCHAR,cdt VARCHAR,rep_date VARCHAR,imagepath VARCHAR,status VARCHAR);");
         //db.execSQL("CREATE TABLE IF NOT EXISTS questions(centers VARCHAR,params VARCHAR);");
@@ -36,20 +37,24 @@ public class DBHelper {
     }
 
 
-    public void insertProject(String latitude, String longitude, String cdt, String address, String deviceid, String deviceno, String status, Context context) {
+    public void insertProject(String latitude, String longitude, String cdt, String address, String deviceid, String deviceno, String status,String run, Context context) {
         DBHelper.context = context;
         db = context.openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
-        db.execSQL("INSERT INTO checktime VALUES('" + latitude + "','" + longitude + "','" + cdt + "','" + address + "','" + deviceid + "','" + deviceno + "','" + status + "');");
+        db.execSQL("INSERT INTO checktime VALUES('" + latitude + "','" + longitude + "','" + cdt + "','" + address + "','" + deviceid + "','" + deviceno + "','" + status + "','"+run+"');");
         db.close();
         Log.d("dbcreated_insert", "insertedsucess");
     }
 
     public void updateProject(String status, String cdt, Context context) {
+
+        DBHelper.context = context;
         db = context.openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
         String strSQL = "UPDATE checktime SET status = '" + status + "' WHERE cdt = '" + cdt + "'";
         db.execSQL(strSQL);
-
-        db.close();
+        if (db.isOpen()){
+            db.close();
+        }
+        //db.close();
         Log.d("checkupdated", "checkupdatedsuccessfully");
 
     }

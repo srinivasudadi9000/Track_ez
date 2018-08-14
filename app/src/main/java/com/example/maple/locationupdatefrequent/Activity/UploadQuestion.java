@@ -147,7 +147,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 // CenterID = adapterView.getSelectedItem().toString();
                 CenterName = centerDetails.get(i).getCenterNumber().toString();
                 CenterID = centerDetails.get(i).getCenterid().toString();
-               // Toast.makeText(getBaseContext(), centerDetails.get(i).getCenterid().toString(), Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getBaseContext(), centerDetails.get(i).getCenterid().toString(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -155,7 +155,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 // CenterID = adapterView.getSelectedItem().toString();
                 CenterName = centerDetails.get(adapterView.getId()).getCenterNumber().toString();
                 CenterID = centerDetails.get(adapterView.getId()).getCenterid().toString();
-              //  Toast.makeText(getBaseContext(), CenterID.toString() + adapterView.getId(), Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(getBaseContext(), CenterID.toString() + adapterView.getId(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -326,9 +326,10 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 if (CenterID.equals("0")) {
                     showDialog(UploadQuestion.this, "Please select center", "no");
                 } else {
-                    formattedMessage = "Center Name" + "<br/>Obs." + CenterName + "$" + CenterID + "<br/><br/>";
+                    formattedMessage = "Center Name" + "<br/>Obs." + CenterName + "<br/><br/>";
                     for (int i = 0; i < len; i++) {
-                        formattedMessage = formattedMessage + tvArray[i].getText().toString() + "<br/>Obs. " + etArray[i].getText().toString();
+                        int j = i + 1;
+                        formattedMessage = formattedMessage + j + ". " + tvArray[i].getText().toString() + "<br/>Obs. " + etArray[i].getText().toString();
                         if (i != len - 1)
                             formattedMessage = formattedMessage + "<br/><br/>";
                     }
@@ -592,7 +593,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
             if (path != null) {
                 Bitmap mBitmap = BitmapFactory.decodeFile(path);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                mBitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos); //bm is the bitmap object
+                mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
                 byte[] byteArrayImage = baos.toByteArray();
                 encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
             }
@@ -608,17 +609,31 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         System.out.println("Camera request code......................" + resultCode);
-
-        try {
-            BitmapFactory.Options opt = new BitmapFactory.Options();
-            opt.inSampleSize = 8;
-            opt.inMutable = true;
-            Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
-            ivOtherImage2.setScaleType(ImageView.ScaleType.FIT_XY);
-            ivOtherImage2.setImageBitmap(bmImage);
-            compressImage(otherImagefile2.getAbsolutePath().toString());
-        } catch (Exception e) {
-            Log.e("msg", e.getMessage());
+        if (requestCode == O_IMAGE2 && resultCode == RESULT_OK){
+            try {
+                BitmapFactory.Options opt = new BitmapFactory.Options();
+                opt.inSampleSize = 8;
+                opt.inMutable = true;
+                Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
+                ivOtherImage2.setScaleType(ImageView.ScaleType.FIT_XY);
+                ivOtherImage2.setImageBitmap(bmImage);
+                compressImage(otherImagefile2.getAbsolutePath().toString());
+            } catch (Exception e) {
+                Log.e("msg", e.getMessage());
+            }
+        }else {
+            try {
+                BitmapFactory.Options opt = new BitmapFactory.Options();
+                opt.inSampleSize = 8;
+                opt.inMutable = true;
+                Bitmap bmImage = BitmapFactory.decodeResource(UploadQuestion.this.getResources(), R.drawable.imgnoavailable);
+              //  Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
+                ivOtherImage2.setScaleType(ImageView.ScaleType.FIT_XY);
+                ivOtherImage2.setImageBitmap(bmImage);
+                compressImage(otherImagefile2.getAbsolutePath().toString());
+            } catch (Exception e) {
+                Log.e("msg", e.getMessage());
+            }
         }
 
 

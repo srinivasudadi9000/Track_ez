@@ -33,22 +33,24 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class Attendance_lo extends Activity implements View.OnClickListener{
+public class Attendance_lo extends Activity implements View.OnClickListener {
     ImageView clickback;
     TextView title_tv;
     RecyclerView check_today_rv;
     ArrayList<Checkins> checkins;
     CheckinAdapter checkinAdapter;
-    ImageView refresh_img,back_img;
+    ImageView refresh_img, back_img;
+    DBHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.attendance_lo);
-
-        refresh_img = (ImageView) findViewById(R.id.refresh_img);
-        back_img = (ImageView) findViewById(R.id.back_img);
-        title_tv = (TextView) findViewById(R.id.title_tv);
-        check_today_rv = (RecyclerView) findViewById(R.id.check_today_rv);
+        dbHelper = new DBHelper(Attendance_lo.this);
+        refresh_img = findViewById(R.id.refresh_img);
+        back_img = findViewById(R.id.back_img);
+        title_tv = findViewById(R.id.title_tv);
+        check_today_rv = findViewById(R.id.check_today_rv);
         check_today_rv.setLayoutManager(new LinearLayoutManager(this));
         getcheckins_from_local();
         refresh_img.setOnClickListener(this);
@@ -77,13 +79,13 @@ public class Attendance_lo extends Activity implements View.OnClickListener{
             while (!c.isAfterLast()) {
                 checkins.add(new Checkins(c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
                         c.getString(c.getColumnIndex("cdt")), c.getString(c.getColumnIndex("address")), c.getString(c.getColumnIndex("deviceid"))
-                        , c.getString(c.getColumnIndex("deviceno")), c.getString(c.getColumnIndex("status"))));
+                        , c.getString(c.getColumnIndex("deviceno")), c.getString(c.getColumnIndex("status")), c.getString(c.getColumnIndex("run"))));
                 try {
                     if (Validations.hasActiveInternetConnection(Attendance_lo.this)) {
-                        if (!c.getString(c.getColumnIndex("latitude")).equals("Unable To Fetch")){
-                            if ( c.getString(c.getColumnIndex("status")).equals("local")){
+                        if (!c.getString(c.getColumnIndex("latitude")).equals("Unable To Fetch")) {
+                            if (c.getString(c.getColumnIndex("status")).equals("local")) {
                                 sendlatlong_to_server(c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
-                                        c.getString(c.getColumnIndex("cdt")));
+                                        c.getString(c.getColumnIndex("cdt")),c.getString(c.getColumnIndex("run")));
                             }
                         }
                     }
@@ -101,7 +103,7 @@ public class Attendance_lo extends Activity implements View.OnClickListener{
         //finish();
     }
 
-    public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime) throws IOException {
+    public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime,final String run) {
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
@@ -117,10 +119,10 @@ public class Attendance_lo extends Activity implements View.OnClickListener{
         urlBuilder.addQueryParameter("Course", "android_srinivas");
         urlBuilder.addQueryParameter("Battery", "20");
         urlBuilder.addQueryParameter("Address", "vizag");
-        urlBuilder.addQueryParameter("LocationProvider", s.getString("personname",""));
+        urlBuilder.addQueryParameter("LocationProvider", s.getString("personname", ""));
         urlBuilder.addQueryParameter("UpdatedDateTime", datetime);
-        urlBuilder.addQueryParameter("AppStatus", "2");
-        urlBuilder.addQueryParameter("MobileDeviceID",  s.getString("deviceno", ""));
+        urlBuilder.addQueryParameter("AppStatus", run);
+        urlBuilder.addQueryParameter("MobileDeviceID", s.getString("deviceno", ""));
         //  urlBuilder.addQueryParameter("MobileDeviceID", "9999999999");
 
         String url = urlBuilder.build().toString();
@@ -138,20 +140,21 @@ public class Attendance_lo extends Activity implements View.OnClickListener{
             }
 
             @Override
-            public void onResponse(Call call, final Response response) throws IOException {
+            public void onResponse(Call call, final Response response) {
+
                 if (!response.isSuccessful()) {
                     Log.d("result", response.toString());
                     Log.d("addresss ", getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""));
                     //throw new IOException("Unexpected code " + response);
 
-                    DBHelper dbHelper = new DBHelper(Attendance_lo.this);
+
                     dbHelper.updateProject("local", datetime, Attendance_lo.this);
                 } else {
                     Log.d("result_else_local", response.toString());
                     SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
-                    DBHelper dbHelper = new DBHelper(Attendance_lo.this);
                     dbHelper.updateProject("server", datetime, Attendance_lo.this);
                 }
+
             }
         });
     }
@@ -161,10 +164,15 @@ public class Attendance_lo extends Activity implements View.OnClickListener{
         return "wow";
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.back_img:
                 finish();
                 break;
@@ -173,4 +181,5 @@ public class Attendance_lo extends Activity implements View.OnClickListener{
                 break;
         }
     }
+
 }

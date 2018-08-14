@@ -3,6 +3,7 @@ package com.example.maple.locationupdatefrequent.Adapters;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class CheckinAdapter extends RecyclerView.Adapter<CheckinAdapter.CheckIn> {
   ArrayList<Checkins> checkIns;
   int Rowlayout;
@@ -42,7 +45,24 @@ public class CheckinAdapter extends RecyclerView.Adapter<CheckinAdapter.CheckIn>
     @SuppressLint({"NewApi", "ResourceAsColor"})
     @Override
     public void onBindViewHolder(CheckIn holder, int position) {
+
+
         holder.lng_tv.setText("Lng : "+checkIns.get(position).getLatitude());
+        SharedPreferences se = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
+        String cs =checkIns.get(position).getRun();
+        System.out.println("srinivasu  "+cs);
+        switch (cs){
+            case "0":
+                holder.view_ld.setBackgroundColor(context.getResources().getColor(R.color.red));
+                break;
+            case "1":
+                holder.view_ld.setBackgroundColor(context.getResources().getColor(R.color.yellow));
+                break;
+            case "2":
+                holder.view_ld.setBackgroundColor(context.getResources().getColor(R.color.forestgreen));
+                break;
+        }
+
         holder.lat_tv.setText("Lat : "+checkIns.get(position).getLongitude());
 
         DateFormat originalFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
@@ -70,10 +90,12 @@ public class CheckinAdapter extends RecyclerView.Adapter<CheckinAdapter.CheckIn>
                 holder.status_tv.setText("Updated To Server !!");
             }
 
-
             holder.statsu_img.setImageDrawable(context.getResources().getDrawable(R.drawable.done_green));
 
         }
+
+
+
         Animation animation = AnimationUtils.loadAnimation(context.getApplicationContext(), R.anim.slidein);
         if (position %2 ==0){
             animation.setDuration(1000);
@@ -92,14 +114,16 @@ public class CheckinAdapter extends RecyclerView.Adapter<CheckinAdapter.CheckIn>
        TextView lat_tv,lng_tv,cdt_tv,status_tv;
        ImageView statsu_img;
        CardView single_checkin_cv;
+       View view_ld;
         public CheckIn(View itemView) {
             super(itemView);
-            single_checkin_cv = (CardView)itemView.findViewById(R.id.single_checkin_cv);
-            statsu_img = (ImageView) itemView.findViewById(R.id.statsu_img);
-            cdt_tv = (TextView) itemView.findViewById(R.id.cdt_tv);
-            status_tv = (TextView) itemView.findViewById(R.id.status_tv);
-            lat_tv = (TextView) itemView.findViewById(R.id.lat_tv);
-            lng_tv = (TextView) itemView.findViewById(R.id.lng_tv);
+            view_ld = itemView.findViewById(R.id.view_ld);
+            single_checkin_cv = itemView.findViewById(R.id.single_checkin_cv);
+            statsu_img = itemView.findViewById(R.id.statsu_img);
+            cdt_tv = itemView.findViewById(R.id.cdt_tv);
+            status_tv = itemView.findViewById(R.id.status_tv);
+            lat_tv = itemView.findViewById(R.id.lat_tv);
+            lng_tv = itemView.findViewById(R.id.lng_tv);
         }
     }
 }

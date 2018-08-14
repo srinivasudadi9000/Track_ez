@@ -159,10 +159,10 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                         DBHelper dbHelper = new DBHelper(context);
                         if (Validations.hasActiveInternetConnection(context)) {
                             dbHelper.insertProject(latitude, longitude, millisInString, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
-                                    s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", context);
+                                    s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", "2", context);
                         } else {
                             dbHelper.insertProject(latitude, longitude, millisInString, "oops",
-                                    s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", context);
+                                    s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", "2", context);
                         }
                     }
 
@@ -192,19 +192,19 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                                 DBHelper dbHelper = new DBHelper(context);
                                 dbHelper.insertProject(lat, longi, millisInString, "wow",
                                         s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
-                                        , context);
+                                        , "2", context);
                             }
                         } else {
                             DBHelper dbHelper = new DBHelper(context);
                             dbHelper.insertProject("Unable To Fetch", "Unable To Fetch", millisInString, "wow",
                                     s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
-                                    , context);
+                                    , "2", context);
                         }
                     } else {
                         DBHelper dbHelper = new DBHelper(context);
                         dbHelper.insertProject("Unable To Fetch", "Unable To Fetch", millisInString, "wow",
                                 s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
-                                , context);
+                                , "2", context);
                     }
 
                 }
@@ -267,7 +267,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
     }
 
     public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime) {
-        SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
+        final SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
 
@@ -300,6 +300,10 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                 // Log.d("result", e.getMessage().toString());
                 // e.printStackTrace();
                 Log.d("result", "service no runnning...............");
+                DBHelper dbHelper = new DBHelper(context);
+                dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
+                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", "2", context);
+
             }
 
             @Override
@@ -323,7 +327,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                             s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", context);
                 }*/
 
-                SharedPreferences s = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
+
                 if (!response.isSuccessful()) {
                     Log.d("result", response.toString());
                     // Log.d("addresss ", getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""));
@@ -333,7 +337,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
                     DBHelper dbHelper = new DBHelper(context);
                     dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
-                            s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", context);
+                            s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", "2", context);
                 } else {
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().string());
@@ -341,13 +345,16 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject1 = jsonArray.getJSONObject(i);
                             if (jsonObject1.getString("Response").equals("Success")) {
+                                SharedPreferences.Editor se = context.getSharedPreferences("Userdetails", MODE_PRIVATE).edit();
+                                se.putString("start_stop", "2");
+                                se.commit();
                                 DBHelper dbHelper = new DBHelper(context);
                                 dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
-                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", context);
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", "2", context);
                             } else {
                                 DBHelper dbHelper = new DBHelper(context);
                                 dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
-                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", context);
+                                        s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", "2", context);
                             }
                         }
                     } catch (Exception e) {

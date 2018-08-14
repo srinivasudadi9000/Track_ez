@@ -2,11 +2,11 @@ package com.example.maple.locationupdatefrequent.Models;
 
 public class Checkins {
 
-    String latitude,longitude,cdate,address,deviceid,deviceno,status;
+    String latitude,longitude,cdate,address,deviceid,deviceno,status,run;
 
-    public Checkins(String latitude, String longitude, String cdate,String address,String deviceid,String deviceno,String status){
+    public Checkins(String latitude, String longitude, String cdate,String address,String deviceid,String deviceno,String status,String run){
         this.cdate= cdate;this.latitude=latitude;this.longitude= longitude;this.address = address;this.deviceid = deviceid;
-        this.deviceno = deviceno;this.status= status;
+        this.deviceno = deviceno;this.status= status;this.run=run;
     }
 
     public String getLatitude() {
@@ -63,5 +63,13 @@ public class Checkins {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRun() {
+        return run;
+    }
+
+    public void setRun(String run) {
+        this.run = run;
     }
 }
