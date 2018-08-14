@@ -81,9 +81,9 @@ public class GetUserReportsAdapter extends RecyclerView.Adapter<GetUserReportsAd
                     System.out.println("Sublines " + subls + "values" + str1 + " lenght  " + str1.length());
                     holder.message_tv.setText(sublines[0]);
                     if (subls>=1){
-                        holder.answer_tv.setText(str1.substring(0,subls));
+                        holder.answer_tv.setText(str1.substring(0,subls).replace("Obs.",""));
                     }else {
-                        holder.answer_tv.setText(str1);
+                        holder.answer_tv.setText(str1.replace("Obs.",""));
                     }
                     reports.get(position).setType("yes");
 

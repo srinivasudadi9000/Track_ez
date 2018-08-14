@@ -64,12 +64,12 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.Chec
            String str1 = new String(questions.get(position).getAnswer());
            int subls = str1.indexOf('$');
            if (subls>=1){
-               holder.answer_tv.setText(str1.substring(0,subls));
+               holder.answer_tv.setText(str1.substring(0,subls).replace("Obs.",""));
            }else {
-               holder.answer_tv.setText(str1);
+               holder.answer_tv.setText(str1.replace("Obs.",""));
            }
        }else {
-           holder.answer_tv.setText(questions.get(position).getAnswer());
+           holder.answer_tv.setText(questions.get(position).getAnswer().replace("Obs.",""));
        }
 
 

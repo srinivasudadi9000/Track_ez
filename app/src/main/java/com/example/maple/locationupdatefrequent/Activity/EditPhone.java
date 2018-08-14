@@ -279,7 +279,12 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 // Log.d("result", e.getMessage().toString());
                 // e.printStackTrace();
                 Log.d("result", "service no runnning...............");
-                showDialog(EditPhone.this, "Internal server occured please try again", "no");
+                EditPhone.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        showDialog(EditPhone.this, "Internal server occured please try again", "no");
+                    }
+                });
+
             }
 
             @Override
@@ -354,7 +359,12 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 } else {
                     Log.d("result_else", response.body().toString());
                     Log.e("TAG", "response 33: " + new Gson().toJson(response.body()));
-                    showDialog(EditPhone.this, "Server busy at this moment please try after some time or contact admin", "no");
+                    EditPhone.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            showDialog(EditPhone.this, "Server busy at this moment please try after some time or contact admin", "no");
+                        }
+                    });
+
                 }
             }
         });

@@ -609,7 +609,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         System.out.println("Camera request code......................" + resultCode);
-        if (requestCode == O_IMAGE2 && resultCode == RESULT_OK){
+        if (requestCode == O_IMAGE2 && resultCode == RESULT_OK) {
             try {
                 BitmapFactory.Options opt = new BitmapFactory.Options();
                 opt.inSampleSize = 8;
@@ -621,13 +621,17 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
             } catch (Exception e) {
                 Log.e("msg", e.getMessage());
             }
-        }else {
+        } else {
             try {
                 BitmapFactory.Options opt = new BitmapFactory.Options();
                 opt.inSampleSize = 8;
                 opt.inMutable = true;
-                Bitmap bmImage = BitmapFactory.decodeResource(UploadQuestion.this.getResources(), R.drawable.imgnoavailable);
-              //  Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
+                Bitmap bmImage = BitmapFactory.decodeResource(UploadQuestion.this.getResources(), R.drawable.dummy);
+                FileOutputStream fos = new FileOutputStream(otherImagefile2);
+                bmImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.flush();
+                fos.close();
+                //  Bitmap bmImage = BitmapFactory.decodeFile(otherImagefile2.getPath().toString(), opt);
                 ivOtherImage2.setScaleType(ImageView.ScaleType.FIT_XY);
                 ivOtherImage2.setImageBitmap(bmImage);
                 compressImage(otherImagefile2.getAbsolutePath().toString());
@@ -635,8 +639,6 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 Log.e("msg", e.getMessage());
             }
         }
-
-
     }
 
     private String getRealPathFromURI(String contentURI) {

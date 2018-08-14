@@ -80,17 +80,13 @@ public class Attendance_lo extends Activity implements View.OnClickListener {
                 checkins.add(new Checkins(c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
                         c.getString(c.getColumnIndex("cdt")), c.getString(c.getColumnIndex("address")), c.getString(c.getColumnIndex("deviceid"))
                         , c.getString(c.getColumnIndex("deviceno")), c.getString(c.getColumnIndex("status")), c.getString(c.getColumnIndex("run"))));
-                try {
-                    if (Validations.hasActiveInternetConnection(Attendance_lo.this)) {
-                        if (!c.getString(c.getColumnIndex("latitude")).equals("Unable To Fetch")) {
-                            if (c.getString(c.getColumnIndex("status")).equals("local")) {
-                                sendlatlong_to_server(c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
-                                        c.getString(c.getColumnIndex("cdt")),c.getString(c.getColumnIndex("run")));
-                            }
+                if (Validations.hasActiveInternetConnection(Attendance_lo.this)) {
+                    if (!c.getString(c.getColumnIndex("latitude")).equals("Unable To Fetch")) {
+                        if (c.getString(c.getColumnIndex("status")).equals("local")) {
+                            sendlatlong_to_server(c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
+                                    c.getString(c.getColumnIndex("cdt")),c.getString(c.getColumnIndex("run")));
                         }
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
                 c.moveToNext();
             }
