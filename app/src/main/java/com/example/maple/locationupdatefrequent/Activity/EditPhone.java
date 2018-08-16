@@ -231,6 +231,11 @@ public class EditPhone extends Activity implements View.OnClickListener {
                     Intent dashboard = new Intent(EditPhone.this, GeoFencingDemo.class);
                     startActivity(dashboard);
                     finish();
+                } else if (status.equals("upgrade")) {
+                    dialog.dismiss();
+                    Intent upgrade = new Intent(EditPhone.this, Upgrade_app.class);
+                    startActivity(upgrade);
+                    finish();
                 } else {
                     dialog.dismiss();
                 }
@@ -269,6 +274,7 @@ public class EditPhone extends Activity implements View.OnClickListener {
         String url = urlBuilder.build().toString();
 
         final Request request = new Request.Builder()
+                .header("appversion", getResources().getString(R.string.version).toString())
                 .url(url)
                 .build();
         Log.d("RegisterDevice", request.toString());
@@ -292,7 +298,6 @@ public class EditPhone extends Activity implements View.OnClickListener {
                 progress.dismiss();
                 if (response.isSuccessful()) {
                     Log.d("result_success", response.body().toString());
-
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().string());
 
@@ -332,6 +337,10 @@ public class EditPhone extends Activity implements View.OnClickListener {
                                 editor.putString("Centers", arrayFromString.toString());
                                 editor.putString("ReportParameters", ReportParametersa.toString());
                                 editor.commit();
+
+                                SharedPreferences.Editor ss = getSharedPreferences("AppUpgrade", MODE_PRIVATE).edit();
+                                ss.putString("AppUpgrade", "false");
+                                ss.commit();
                                 EditPhone.this.runOnUiThread(new Runnable() {
                                     public void run() {
                                         showDialog(EditPhone.this, "Registration successfull, click OK to continue", "yes");
@@ -339,15 +348,30 @@ public class EditPhone extends Activity implements View.OnClickListener {
                                 });
 
                             } else {
-                                EditPhone.this.runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        try {
-                                            showDialog(EditPhone.this, values.getString("Message"), "no");
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
+                                SharedPreferences.Editor s = getSharedPreferences("AppUpgrade", MODE_PRIVATE).edit();
+                                s.putString("AppUpgrade", values.getString("Upgrade"));
+                                s.commit();
+                                if (values.getString("Upgrade").equals("true")) {
+                                    EditPhone.this.runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            try {
+                                                showDialog(EditPhone.this, values.getString("Message"), "upgrade");
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                } else {
+                                    EditPhone.this.runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            try {
+                                                showDialog(EditPhone.this, values.getString("Message"), "no");
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    });
+                                }
                             }
 
                         }

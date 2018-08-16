@@ -21,9 +21,11 @@
     <uses-feature android:name="android.hardware.location" />
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
+
     <application
         android:name=".UILApplication"
         android:allowBackup="true"
@@ -39,7 +41,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -105,7 +106,13 @@
         <activity
             android:name=".Activity.UploadQuestion"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="b4131700715792b4fe1928f21cdb60a32aec83bd" />
+
+        <activity android:name=".Activity.Upgrade_app"></activity>
     </application>
 
 </manifest>

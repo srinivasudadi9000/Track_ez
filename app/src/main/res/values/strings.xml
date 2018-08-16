@@ -24,6 +24,6 @@
 
     <string name="default_channel">Default channel</string>
     <string name="google_map_key">AIzaSyBDGVVc7wHd1-MMyDEdAnQ0dtL8hRH0qa4</string>
-
+    <string name="version">1.6</string>
 
 </resources>

@@ -45,6 +45,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -88,18 +89,23 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
         //alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,cal.getTimeInMillis(), pendingIntent);
 
         // alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
-
+        SharedPreferences ss = context.getSharedPreferences("Userdetails", MODE_PRIVATE);
+        int seconds = Integer.parseInt(ss.getString("RefreshTimeInterval", ""));
+        int timeinterval = (int) TimeUnit.SECONDS.toMillis(seconds);
+        System.out.println("Geo Milliseconds at receiver " + timeinterval);
         if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
 
         } else if (android.os.Build.MANUFACTURER.equals("vivo")) {
-            alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
+            //alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
+            alarmMgr.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeinterval, pendingIntent);
             //alarmMgr.set(android.app.AlarmManager.RTC_WAKEUP,30000, pendingIntent);
         } else {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
 
                 } else {
-                    alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
+                    //   alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 30000, pendingIntent);
+                    alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeinterval, pendingIntent);
                 }
                 // only for gingerbread and newer versions
             }
@@ -291,6 +297,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
         String url = urlBuilder.build().toString();
 
         Request request = new Request.Builder()
+                .header("appversion", context.getResources().getString(R.string.version).toString())
                 .url(url)
                 .build();
 
@@ -352,6 +359,11 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                                 dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
                                         s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", "2", context);
                             } else {
+
+                                SharedPreferences.Editor sd = context.getSharedPreferences("AppUpgrade", MODE_PRIVATE).edit();
+                                sd.putString("AppUpgrade", jsonObject1.getString("Upgrade"));
+                                sd.commit();
+
                                 DBHelper dbHelper = new DBHelper(context);
                                 dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
                                         s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", "2", context);

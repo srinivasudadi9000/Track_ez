@@ -173,6 +173,7 @@ public class Messages extends Activity implements View.OnClickListener {
         String url = urlBuilder.build().toString();
 
         Request request = new Request.Builder()
+                .header("appversion", getResources().getString(R.string.version).toString())
                 .url(url)
                 .build();
 
@@ -218,7 +219,6 @@ public class Messages extends Activity implements View.OnClickListener {
                             }
                         });
                     }
-
                 }
             }
         });

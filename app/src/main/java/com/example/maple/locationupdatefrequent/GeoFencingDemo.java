@@ -56,6 +56,7 @@ import com.example.maple.locationupdatefrequent.Activity.EditPhone;
 import com.example.maple.locationupdatefrequent.Activity.GetUserReports;
 import com.example.maple.locationupdatefrequent.Activity.Messages;
 import com.example.maple.locationupdatefrequent.Activity.SplashScreen;
+import com.example.maple.locationupdatefrequent.Activity.Upgrade_app;
 import com.example.maple.locationupdatefrequent.Activity.UploadQuestion;
 import com.example.maple.locationupdatefrequent.Helper.Constants;
 import com.example.maple.locationupdatefrequent.Helper.DBHelper;
@@ -89,6 +90,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.master.permissionhelper.PermissionHelper;
 
+import io.fabric.sdk.android.Fabric;
+
+import com.crashlytics.android.Crashlytics;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -100,6 +105,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -177,10 +183,12 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
         act = this;
         ((AppCompatActivity) act).getSupportActionBar().hide();
+
         back_img = findViewById(R.id.back_img);
         refresh_img = findViewById(R.id.refresh_img);
         back_img.setVisibility(View.GONE);
@@ -207,18 +215,21 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
         sharedPreferences = getSharedPreferences("location_date_storage", MODE_PRIVATE);
         START_STOP = getSharedPreferences("START_STOP", MODE_PRIVATE);
-        if (START_STOP.getString("status", "").length() > 0) {
+        if (START_STOP.getString("status", "").length() > 1) {
 
             if (START_STOP.getString("status", "").equals("STOP")) {
                 statsu_tv.setTextColor(getResources().getColor(R.color.green));
                 statsu_tv.setText(START_STOP.getString("status", "").toString());
+                tapstatus_tv.setText("Tap to STOP");
             } else {
                 statsu_tv.setTextColor(getResources().getColor(R.color.white));
                 statsu_tv.setText(START_STOP.getString("status", "").toString());
+                tapstatus_tv.setText("Tap to START");
             }
         } else {
             statsu_tv.setTextColor(getResources().getColor(R.color.white));
             statsu_tv.setText("START");
+            tapstatus_tv.setText("Tap to START");
         }
 
         SharedPreferences ss = getSharedPreferences("Userdetails", MODE_PRIVATE);
@@ -256,6 +267,12 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         };
         // Registers the DownloadStateReceiver and its intent filters
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mDownloadStateReceiver, statusIntentFilter);
+
+        // forceCrash(start_fab);
+    }
+
+    public void forceCrash(View view) {
+        throw new RuntimeException("This is a crash");
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -963,6 +980,8 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     public void onClick(View view) {
+        SharedPreferences up = getSharedPreferences("AppUpgrade", MODE_PRIVATE);
+
         switch (view.getId()) {
             case R.id.start_fab:
 
@@ -998,19 +1017,25 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                     // cal.add(Calendar.SECOND, 5);
                     // alarmMgr.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
                     //alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,cal.getTimeInMillis(), pendingIntent);
-
+                    SharedPreferences ss = getSharedPreferences("Userdetails", MODE_PRIVATE);
+                    int seconds = Integer.parseInt(ss.getString("RefreshTimeInterval", ""));
+                    int timeinterval = (int) TimeUnit.SECONDS.toMillis(seconds);
+                    System.out.println("Geo Milliseconds " + timeinterval);
                     if (android.os.Build.MANUFACTURER.equals("LeMobile")) {
-                        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
+                        //  alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
+                        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), timeinterval, pendingIntent);
                     } else if (android.os.Build.MANUFACTURER.equals("vivo")) {
                         //  Toast.makeText(getBaseContext(), "vivo mobile", Toast.LENGTH_SHORT).show();
                         //  alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
-                        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 30000, pendingIntent);
+                        //  alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 30000, pendingIntent);
+                        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), timeinterval, pendingIntent);
                     } else {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                            alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+                            //   alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, 60000, pendingIntent);
+                            alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeinterval, pendingIntent);
                             // only for gingerbread and newer versions
                         } else {
-                            alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), 60000, pendingIntent);
+                            alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, cal2.getTimeInMillis(), timeinterval, pendingIntent);
                         }
                     }
                     buildGoogleApiClient();
@@ -1050,13 +1075,22 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                 break;
 
             case R.id.status_cv:
-                Intent attndance_lo = new Intent(GeoFencingDemo.this, Attendance_lo.class);
-                attndance_lo.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(attndance_lo);
+                System.out.println("version........."+up.getString("AppUpgrade", "").equals("true"));
+                if (up.getString("AppUpgrade", "").toString().equals("true")) {
+                    showDialog(GeoFencingDemo.this, "You are using a different version of the app, please contact admin.", "upgrade");
+                } else {
+                    Intent attndance_lo = new Intent(GeoFencingDemo.this, Attendance_lo.class);
+                    attndance_lo.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(attndance_lo);
+                }
                 break;
             case R.id.dailyreport_cv:
-                Intent dailyreport = new Intent(GeoFencingDemo.this, UploadQuestion.class);
-                startActivity(dailyreport);
+                if (up.getString("AppUpgrade", "").toString().equals("true")) {
+                    showDialog(GeoFencingDemo.this, "You are using a different version of the app, please contact admin.", "upgrade");
+                } else {
+                    Intent dailyreport = new Intent(GeoFencingDemo.this, UploadQuestion.class);
+                    startActivity(dailyreport);
+                }
                 break;
             case R.id.logout_cv:
                 if (statsu_tv.getText().toString().equals("STOP")) {
@@ -1066,16 +1100,28 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                 }
                 break;
             case R.id.mesages_cardview:
-                Intent messages = new Intent(GeoFencingDemo.this, Messages.class);
-                startActivity(messages);
+                if (up.getString("AppUpgrade", "").toString().equals("true")) {
+                    showDialog(GeoFencingDemo.this, "You are using a different version of the app, please contact admin.", "upgrade");
+                } else {
+                    Intent messages = new Intent(GeoFencingDemo.this, Messages.class);
+                    startActivity(messages);
+                }
                 break;
             case R.id.admin_msg_cv:
-                Intent adminmsg = new Intent(GeoFencingDemo.this, AdminMessages.class);
-                startActivity(adminmsg);
+                if (up.getString("AppUpgrade", "").toString().equals("true")) {
+                    showDialog(GeoFencingDemo.this, "You are using a different version of the app, please contact admin.", "upgrade");
+                } else {
+                    Intent adminmsg = new Intent(GeoFencingDemo.this, AdminMessages.class);
+                    startActivity(adminmsg);
+                }
                 break;
             case R.id.recentrep_cv:
-                Intent recentreports = new Intent(GeoFencingDemo.this, GetUserReports.class);
-                startActivity(recentreports);
+                if (up.getString("AppUpgrade", "").toString().equals("true")) {
+                    showDialog(GeoFencingDemo.this, "You are using a different version of the app, please contact admin.", "upgrade");
+                } else {
+                    Intent recentreports = new Intent(GeoFencingDemo.this, GetUserReports.class);
+                    startActivity(recentreports);
+                }
                 break;
         }
     }
@@ -1104,6 +1150,11 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                     Intent dashboard = new Intent(GeoFencingDemo.this, GeoFencingDemo.class);
                     startActivity(dashboard);
                     finish();
+                } else if (status.equals("upgrade")) {
+                    dialog.dismiss();
+                    Intent upgrade = new Intent(GeoFencingDemo.this, Upgrade_app.class);
+                    startActivity(upgrade);
+                   // finish();
                 } else {
                     dialog.dismiss();
                 }
@@ -1201,6 +1252,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         String url = urlBuilder.build().toString();
 
         final Request request = new Request.Builder()
+                .header("appversion", getResources().getString(R.string.version).toString())
                 .url(url)
                 .build();
 
@@ -1234,6 +1286,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().string());
                         JSONArray jsonArray = jsonObject.getJSONArray("Message");
+                        System.out.println("Geo_response " + jsonArray.toString());
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject1 = jsonArray.getJSONObject(i);
                             if (jsonObject1.getString("Response").equals("Success")) {
@@ -1241,6 +1294,10 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                                 dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
                                         s.getString("DeviceId", ""), s.getString("deviceno", ""), "server", s.getString("start_stop", ""), GeoFencingDemo.this);
                             } else {
+                                SharedPreferences.Editor sd = getSharedPreferences("AppUpgrade", MODE_PRIVATE).edit();
+                                sd.putString("AppUpgrade", jsonObject1.getString("Upgrade"));
+                                sd.commit();
+
                                 DBHelper dbHelper = new DBHelper(GeoFencingDemo.this);
                                 dbHelper.insertProject(latitude, longitude, datetime, getaddressFromGEO(17.7167105, 83.306409).replaceAll("',`", ""),
                                         s.getString("DeviceId", ""), s.getString("deviceno", ""), "local", s.getString("start_stop", ""), GeoFencingDemo.this);

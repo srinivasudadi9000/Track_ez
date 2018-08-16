@@ -3,10 +3,13 @@ package com.example.maple.locationupdatefrequent;
 import android.app.Application;
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.ndk.CrashlyticsNdk;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import io.fabric.sdk.android.Fabric;
 
 public class UILApplication  extends Application {
 
@@ -14,6 +17,7 @@ public class UILApplication  extends Application {
     public void onCreate() {
 
         super.onCreate();
+        Fabric.with(this, new Crashlytics(), new CrashlyticsNdk());
 
         initImageLoader(getApplicationContext());
     }

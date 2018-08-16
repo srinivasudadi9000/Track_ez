@@ -173,6 +173,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
         String url = urlBuilder.build().toString();
 
         final Request request = new Request.Builder()
+                .header("appversion", getResources().getString(R.string.version).toString())
                 .url(url)
                 .build();
         Log.d("RegisterDevice", request.toString());
@@ -228,15 +229,33 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                                     }
                                 });
                             } else {
-                                UploadQuestion.this.runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        try {
-                                            showDialog(UploadQuestion.this, values.getString("Message"), "no");
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
+                                SharedPreferences.Editor sd = getSharedPreferences("AppUpgrade", MODE_PRIVATE).edit();
+                                sd.putString("AppUpgrade", values.getString("Upgrade"));
+                                sd.commit();
+
+                                if (values.getString("Upgrade").equals("true")) {
+                                    UploadQuestion.this.runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            try {
+                                                showDialog(UploadQuestion.this, values.getString("Message"), "Upgrade");
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+
+                                }else {
+                                    UploadQuestion.this.runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            try {
+                                                showDialog(UploadQuestion.this, values.getString("Message"), "no");
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    });
+
+                                }
                             }
 
                         }
@@ -573,7 +592,12 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
             public void onClick(View v) {
                 if (status.equals("no")) {
                     dialog.dismiss();
-                } else {
+                }else if (status.equals("Upgrade")){
+                    dialog.dismiss();
+                    Intent upload = new Intent(UploadQuestion.this, Upgrade_app.class);
+                    startActivity(upload);
+                    finish();
+                }else {
                     dialog.dismiss();
                     Intent upload = new Intent(UploadQuestion.this, UploadQuestion.class);
                     startActivity(upload);
@@ -626,7 +650,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 BitmapFactory.Options opt = new BitmapFactory.Options();
                 opt.inSampleSize = 8;
                 opt.inMutable = true;
-                Bitmap bmImage = BitmapFactory.decodeResource(UploadQuestion.this.getResources(), R.drawable.dummy);
+                Bitmap bmImage = BitmapFactory.decodeResource(UploadQuestion.this.getResources(), R.drawable.imgnoavailable);
                 FileOutputStream fos = new FileOutputStream(otherImagefile2);
                 bmImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                 fos.flush();
