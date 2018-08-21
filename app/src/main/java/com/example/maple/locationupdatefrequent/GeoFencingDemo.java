@@ -52,6 +52,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.maple.locationupdatefrequent.Activity.AdminMessages;
+import com.example.maple.locationupdatefrequent.Activity.Downloadapk;
 import com.example.maple.locationupdatefrequent.Activity.EditPhone;
 import com.example.maple.locationupdatefrequent.Activity.GetUserReports;
 import com.example.maple.locationupdatefrequent.Activity.Messages;
@@ -280,7 +281,10 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
-
+        SharedPreferences up = getSharedPreferences("AppUpgrade", MODE_PRIVATE);
+        if (up.getString("AppUpgrade", "").toString().equals("true")) {
+            showDialog(GeoFencingDemo.this, "You are using a different version of the app, please contact admin.", "upgrade");
+        }
     }
 
 
@@ -977,6 +981,15 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         }
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        SharedPreferences up = getSharedPreferences("AppUpgrade", MODE_PRIVATE);
+        if (up.getString("AppUpgrade", "").toString().equals("true")) {
+            showDialog(GeoFencingDemo.this, "You are using a different version of the app, please contact admin.", "upgrade");
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     public void onClick(View view) {
@@ -1075,7 +1088,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                 break;
 
             case R.id.status_cv:
-                System.out.println("version........."+up.getString("AppUpgrade", "").equals("true"));
+                System.out.println("version........." + up.getString("AppUpgrade", "").equals("true"));
                 if (up.getString("AppUpgrade", "").toString().equals("true")) {
                     showDialog(GeoFencingDemo.this, "You are using a different version of the app, please contact admin.", "upgrade");
                 } else {
@@ -1152,9 +1165,9 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                     finish();
                 } else if (status.equals("upgrade")) {
                     dialog.dismiss();
-                    Intent upgrade = new Intent(GeoFencingDemo.this, Upgrade_app.class);
+                    Intent upgrade = new Intent(GeoFencingDemo.this, Downloadapk.class);
                     startActivity(upgrade);
-                   // finish();
+                    // finish();
                 } else {
                     dialog.dismiss();
                 }
@@ -1177,10 +1190,11 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         SharedPreferences.Editor start_stop = getSharedPreferences("START_STOP", MODE_PRIVATE).edit();
         start_stop.putString("status", statsu_tv.getText().toString());
         start_stop.commit();
-        super.onDestroy();
+        startService(new Intent(getBaseContext(), StickyService.class));
     }
 
     @Override
@@ -1189,6 +1203,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
         SharedPreferences.Editor start_stop = getSharedPreferences("START_STOP", MODE_PRIVATE).edit();
         start_stop.putString("status", statsu_tv.getText().toString());
         start_stop.commit();
+        startService(new Intent(getBaseContext(), StickyService.class));
     }
 
     public void clearApplicationData() {

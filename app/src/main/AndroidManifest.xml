@@ -41,6 +41,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".StickyService"
+            android:stopWithTask="false" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -61,7 +64,15 @@
             android:enabled="true"
             android:exported="true" />
         -->
-
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@layout/provider_paths"/>
+        </provider>
         <receiver
             android:name=".LocationUpdatesBroadcastReceiver"
             android:exported="true">
@@ -112,7 +123,8 @@
             android:name="io.fabric.ApiKey"
             android:value="b4131700715792b4fe1928f21cdb60a32aec83bd" />
 
-        <activity android:name=".Activity.Upgrade_app"></activity>
+        <activity android:name=".Activity.Upgrade_app" />
+        <activity android:name=".Activity.Downloadapk"></activity>
     </application>
 
 </manifest>

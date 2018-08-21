@@ -70,7 +70,7 @@ public class Attendance_lo extends Activity implements View.OnClickListener {
         SQLiteDatabase db;
         db = openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
 
-        Cursor c = db.rawQuery("SELECT * FROM checktime ORDER BY cdt DESC", null);
+        Cursor c = db.rawQuery("SELECT * FROM checktime ORDER BY cdt DESC LIMIT 200", null);
         Log.d("overallstring", c.toString());
         String ccc = String.valueOf(c.getCount());
         // Toast.makeText(getBaseContext(),"installation "+ccc.toString(),Toast.LENGTH_SHORT).show();
@@ -84,7 +84,7 @@ public class Attendance_lo extends Activity implements View.OnClickListener {
                     if (!c.getString(c.getColumnIndex("latitude")).equals("Unable To Fetch")) {
                         if (c.getString(c.getColumnIndex("status")).equals("local")) {
                             sendlatlong_to_server(c.getString(c.getColumnIndex("latitude")), c.getString(c.getColumnIndex("longitude")),
-                                    c.getString(c.getColumnIndex("cdt")),c.getString(c.getColumnIndex("run")));
+                                    c.getString(c.getColumnIndex("cdt")), c.getString(c.getColumnIndex("run")));
                         }
                     }
                 }
@@ -99,7 +99,7 @@ public class Attendance_lo extends Activity implements View.OnClickListener {
         //finish();
     }
 
-    public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime,final String run) {
+    public void sendlatlong_to_server(final String latitude, final String longitude, final String datetime, final String run) {
         SharedPreferences s = getSharedPreferences("Userdetails", MODE_PRIVATE);
         // avoid creating several instances, should be singleon
         OkHttpClient client = new OkHttpClient();
@@ -124,6 +124,7 @@ public class Attendance_lo extends Activity implements View.OnClickListener {
         String url = urlBuilder.build().toString();
 
         Request request = new Request.Builder()
+                .header("appversion", Attendance_lo.this.getResources().getString(R.string.version).toString())
                 .url(url)
                 .build();
 

@@ -244,7 +244,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                                         }
                                     });
 
-                                }else {
+                                } else {
                                     UploadQuestion.this.runOnUiThread(new Runnable() {
                                         public void run() {
                                             try {
@@ -257,7 +257,6 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
 
                                 }
                             }
-
                         }
 
                     } catch (JSONException e) {
@@ -592,12 +591,12 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
             public void onClick(View v) {
                 if (status.equals("no")) {
                     dialog.dismiss();
-                }else if (status.equals("Upgrade")){
+                } else if (status.equals("Upgrade")) {
                     dialog.dismiss();
-                    Intent upload = new Intent(UploadQuestion.this, Upgrade_app.class);
+                    Intent upload = new Intent(UploadQuestion.this, Downloadapk.class);
                     startActivity(upload);
                     finish();
-                }else {
+                } else {
                     dialog.dismiss();
                     Intent upload = new Intent(UploadQuestion.this, UploadQuestion.class);
                     startActivity(upload);

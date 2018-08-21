@@ -203,13 +203,13 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                         } else {
                             DBHelper dbHelper = new DBHelper(context);
                             dbHelper.insertProject("Unable To Fetch", "Unable To Fetch", millisInString, "wow",
-                                    s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
+                                    s.getString("DeviceId", ""), s.getString("deviceno", ""), "server"
                                     , "2", context);
                         }
                     } else {
                         DBHelper dbHelper = new DBHelper(context);
                         dbHelper.insertProject("Unable To Fetch", "Unable To Fetch", millisInString, "wow",
-                                s.getString("DeviceId", ""), s.getString("deviceno", ""), "local"
+                                s.getString("DeviceId", ""), s.getString("deviceno", ""), "server"
                                 , "2", context);
                     }
 
