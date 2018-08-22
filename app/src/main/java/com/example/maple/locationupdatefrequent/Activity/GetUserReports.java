@@ -360,7 +360,7 @@ public class GetUserReports extends Activity implements View.OnClickListener {
 
         ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
 
-        retrofit2.Call<UploadInstall> call = apiService.sendMessage("VVD@14", s.getString("DeviceId", ""), MessageDescription, Long, Lat,
+        retrofit2.Call<UploadInstall> call = apiService.sendMessage(getResources().getString(R.string.version),"VVD@14", s.getString("DeviceId", ""), MessageDescription, Long, Lat,
                 s.getString("personname", ""), cdt, "1", s.getString("MobileDeviceID", ""),
                 getStringImage(imagepath));
         call.enqueue(new retrofit2.Callback<UploadInstall>() {

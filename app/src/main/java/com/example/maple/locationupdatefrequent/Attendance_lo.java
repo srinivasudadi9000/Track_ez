@@ -70,7 +70,7 @@ public class Attendance_lo extends Activity implements View.OnClickListener {
         SQLiteDatabase db;
         db = openOrCreateDatabase("RMAT", Context.MODE_PRIVATE, null);
 
-        Cursor c = db.rawQuery("SELECT * FROM checktime ORDER BY cdt DESC LIMIT 200", null);
+        Cursor c = db.rawQuery("SELECT * FROM checktime ORDER BY cdt DESC LIMIT 1000", null);
         Log.d("overallstring", c.toString());
         String ccc = String.valueOf(c.getCount());
         // Toast.makeText(getBaseContext(),"installation "+ccc.toString(),Toast.LENGTH_SHORT).show();

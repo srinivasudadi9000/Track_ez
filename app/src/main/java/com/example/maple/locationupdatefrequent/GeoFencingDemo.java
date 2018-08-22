@@ -1107,7 +1107,7 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                 break;
             case R.id.logout_cv:
                 if (statsu_tv.getText().toString().equals("STOP")) {
-                    showDialog(GeoFencingDemo.this, "Before Logout Please Stop Service", "no");
+                    showDialog(GeoFencingDemo.this, "You need to STOP tracking to logout.", "no");
                 } else {
                     clearApplicationData();
                 }

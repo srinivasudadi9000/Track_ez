@@ -7,6 +7,7 @@ import com.example.maple.locationupdatefrequent.Models.UploadInstall;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface ApiInterface {
@@ -27,6 +28,7 @@ public interface ApiInterface {
     @FormUrlEncoded
     @POST("/tracker/trackernew.asmx/SendMessage?")
     Call<UploadInstall> sendMessage(
+            @Header("appversion") String header,
             @Field("Token") String Token,
             @Field("DeviceID") String DeviceID,
             @Field("MessageDescription") String MessageDescription,

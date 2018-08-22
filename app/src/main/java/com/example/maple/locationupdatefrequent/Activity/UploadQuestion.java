@@ -531,7 +531,7 @@ public class UploadQuestion extends Activity implements View.OnClickListener {
                 + ReportedDateTime + " ReportFrom = " + ReportedFrom + " DR = " + DR + " MobileDeviceId = " + MobileDeviceID + " IMageBitmap " + getStringImage(imagepath));
         ApiInterface apiService = ApiClient.getSams().create(ApiInterface.class);
 
-        retrofit2.Call<UploadInstall> call = apiService.sendMessage(Token, DeviceID, MessageDescription, Long, Lat, ReportedFrom, ReportedDateTime, DR, MobileDeviceID,
+        retrofit2.Call<UploadInstall> call = apiService.sendMessage(getResources().getString(R.string.version),Token, DeviceID, MessageDescription, Long, Lat, ReportedFrom, ReportedDateTime, DR, MobileDeviceID,
                 getStringImage(imagepath));
         call.enqueue(new retrofit2.Callback<UploadInstall>() {
             @Override
