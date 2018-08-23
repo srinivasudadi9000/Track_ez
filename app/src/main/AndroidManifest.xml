@@ -41,6 +41,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service
             android:name=".StickyService"
             android:stopWithTask="false" />
@@ -71,8 +72,9 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@layout/provider_paths"/>
+                android:resource="@layout/provider_paths" />
         </provider>
+
         <receiver
             android:name=".LocationUpdatesBroadcastReceiver"
             android:exported="true">
@@ -124,7 +126,8 @@
             android:value="b4131700715792b4fe1928f21cdb60a32aec83bd" />
 
         <activity android:name=".Activity.Upgrade_app" />
-        <activity android:name=".Activity.Downloadapk"></activity>
+        <activity android:name=".Activity.Downloadapk" />
+        <activity android:name=".Activity.Settings_Opt"></activity>
     </application>
 
 </manifest>

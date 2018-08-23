@@ -56,6 +56,7 @@ import com.example.maple.locationupdatefrequent.Activity.Downloadapk;
 import com.example.maple.locationupdatefrequent.Activity.EditPhone;
 import com.example.maple.locationupdatefrequent.Activity.GetUserReports;
 import com.example.maple.locationupdatefrequent.Activity.Messages;
+import com.example.maple.locationupdatefrequent.Activity.Settings_Opt;
 import com.example.maple.locationupdatefrequent.Activity.SplashScreen;
 import com.example.maple.locationupdatefrequent.Activity.Upgrade_app;
 import com.example.maple.locationupdatefrequent.Activity.UploadQuestion;
@@ -1106,11 +1107,13 @@ public class GeoFencingDemo extends AppCompatActivity implements GoogleApiClient
                 }
                 break;
             case R.id.logout_cv:
-                if (statsu_tv.getText().toString().equals("STOP")) {
+                Intent Settings_Opt = new Intent(GeoFencingDemo.this, Settings_Opt.class);
+                startActivity(Settings_Opt);
+               /* if (statsu_tv.getText().toString().equals("STOP")) {
                     showDialog(GeoFencingDemo.this, "You need to STOP tracking to logout.", "no");
                 } else {
                     clearApplicationData();
-                }
+                }*/
                 break;
             case R.id.mesages_cardview:
                 if (up.getString("AppUpgrade", "").toString().equals("true")) {

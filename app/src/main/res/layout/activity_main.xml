@@ -439,13 +439,13 @@
                                     android:layout_width="80dp"
                                     android:layout_height="80dp"
                                     android:padding="10dp"
-                                    android:src="@drawable/logout" />
+                                    android:src="@drawable/setting_img" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="5dp"
-                                    android:text="Logout"
+                                    android:text="Settings"
                                     android:textAllCaps="true"
                                     android:textColor="@color/black"
                                     android:textStyle="bold" />
@@ -460,7 +460,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
-                                    android:text="Logout User Sessions"
+                                    android:text="Check App Settings"
                                     android:textColor="@android:color/darker_gray" />
 
                             </LinearLayout>
